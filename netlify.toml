@@ -1,0 +1,10 @@
+# Netlify hosts the browser-only app. The Flask server in app.py does not run on Netlify.
+[build]
+  command = "mkdir -p site && cp QuoteLine.html site/index.html && cp QuoteLine-Standalone.html site/"
+  publish = "site"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"

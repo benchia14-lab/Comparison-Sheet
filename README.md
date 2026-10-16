@@ -10,6 +10,10 @@ For a download that runs directly in a browser without installing Python, downlo
 
 After editing the web UI or standalone parser, rebuild both files with `.venv/bin/python scripts/build_standalone.py`. The script downloads pinned library versions over HTTPS and checks their SHA-256 digests before embedding them.
 
+## Netlify
+
+`netlify.toml` publishes `QuoteLine.html` as the site's home page (and the offline file at `/QuoteLine-Standalone.html`). Netlify serves static files only, so the hosted site is the browser version; `app.py` is for running locally. Netlify deploys the production branch, so changes appear on the live site once they are merged into `main`.
+
 ## Run
 
 ```bash
