@@ -25,7 +25,13 @@ Spreadsheet quote tables should have a header such as `Description`, `Qty`, `Uni
 
 The Benton's and Reece PDF layouts in the included example are parsed with their own column rules. Their unit prices are compared **ex GST**; GST, the Reece delivery fee and each document total are read separately. Unknown PDF layouts are accepted only when a line's parsed quantity, unit price and total reconcile, so an unfamiliar layout may need manual rows rather than a misleading total.
 
-The comparison workbook has a financial summary, comparison matrix, and source lines. An incomplete quote's subtotal excludes missing lines and is never selected as the lowest complete quote. Files are processed in memory and are not uploaded to an external AI service. The page's working state lasts only for the current tab session; export the spreadsheet to keep it.
+**Export comparison** downloads a formatted workbook named after the project:
+
+- **Summary**: headline figures, then one row per supplier with quote number, quote date, expiry (flagged when expired), price basis, coverage, product lines, freight, tax, discount, evaluated total, document total and the gap to the lowest complete quote.
+- **Comparison**: a side-by-side price comparison with each supplier's unit price and total at the required quantity, the lowest price per line highlighted, and totals underneath.
+- **One tab per quote**: the supplier's quote details and every extracted product line, including codes, full descriptions, inc-GST totals, the source line and the price-check status.
+
+Totals are spreadsheet formulas, so they update if prices are edited in Excel. The workbook is built in the browser with ExcelJS by `static/export-workbook.js`, which all three versions of the app share. An incomplete quote's subtotal excludes missing lines and is never selected as the lowest complete quote. Files are processed in memory and are not uploaded to an external AI service. The page's working state lasts only for the current tab session; export the spreadsheet to keep it.
 
 ## Test
 

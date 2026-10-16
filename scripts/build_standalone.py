@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import re
 from pathlib import Path
 from urllib.request import urlopen
 
@@ -16,7 +17,12 @@ LIBRARIES = [
      '62773d3b21c7130342148e78abf7b97dbd3103463d3ffc5a68601a2a007e1cf1'),
     ('pdf.worker.min.js', 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.worker.min.js',
      '99732130603cd4980f009a29a38a86373b43ffb9ae22c35ec85440f311ceddfc'),
+    ('exceljs.min.js', 'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js',
+     '7e49da68588e250dbb8bba190d2caa8ab3787cc0284bda1d8b2f805c4df742c9'),
 ]
+# Loaded with <script> tags in this order; the PDF worker is handled separately.
+PAGE_LIBRARIES = ('xlsx.full.min.js', 'pdf.min.js', 'mammoth.browser.min.js', 'exceljs.min.js')
+SERVER_SCRIPTS = re.compile(r'\s*<script src="/static/[^"]+"></script>|\s*<script>pdfjsLib\.GlobalWorkerOptions[^<]*</script>')
 
 
 def library(name, url, expected):
@@ -38,13 +44,15 @@ def page():
     return html.replace('<link rel="stylesheet" href="/static/style.css">', f'<style>\n{css}\n</style>')
 
 
-def remove_server_pdf_scripts(html):
-    return html.replace('<script src="/static/vendor/pdf.min.js"></script>\n  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = \'/static/vendor/pdf.worker.min.js\';</script>\n  ', '')
+def with_scripts(html, parts):
+    """Replace the Flask page's /static script tags with the single-file scripts."""
+    html = SERVER_SCRIPTS.sub('', html)
+    return html.replace('</body>', '  ' + '\n'.join(parts) + '\n</body>')
 
 
 def app_scripts():
     return [f'<script>\n{(ROOT / "static" / name).read_text()}\n</script>'
-            for name in ('standalone-adapter.js', 'app.js')]
+            for name in ('export-workbook.js', 'standalone-adapter.js', 'app.js')]
 
 
 def build_standard():
@@ -52,11 +60,10 @@ def build_standard():
     sri = {name: (url, 'sha256-' + base64.b64encode(bytes.fromhex(digest)).decode())
            for name, url, digest in LIBRARIES}
     parts = [f'<script src="{sri[name][0]}" integrity="{sri[name][1]}" crossorigin="anonymous"></script>'
-             for name in ('xlsx.full.min.js', 'pdf.min.js', 'mammoth.browser.min.js')]
+             for name in PAGE_LIBRARIES]
     parts.append(f"<script>pdfjsLib.GlobalWorkerOptions.workerSrc = '{sri['pdf.worker.min.js'][0]}';</script>")
     parts += app_scripts()
-    html = remove_server_pdf_scripts(page())
-    html = html.replace('<script src="/static/app.js"></script>', '\n'.join(parts))
+    html = with_scripts(page(), parts)
     output = ROOT / 'QuoteLine.html'
     output.write_text(html)
     print(f'Created {output} ({output.stat().st_size:,} bytes)')
@@ -68,15 +75,14 @@ def main():
     scripts = {name: library(name, url, digest) for name, url, digest in LIBRARIES}
     vendor = ROOT / 'static/vendor'
     vendor.mkdir(exist_ok=True)
-    for name in ('pdf.min.js', 'pdf.worker.min.js'):
+    for name in ('pdf.min.js', 'pdf.worker.min.js', 'exceljs.min.js'):
         (vendor / name).write_text(scripts[name])
     parts = [f'<script>\n{scripts[name]}\n</script>' for name in
-             ('xlsx.full.min.js', 'pdf.min.js', 'mammoth.browser.min.js')]
+             PAGE_LIBRARIES]
     parts.append(f'<script id="pdf-worker" type="text/plain">\n{scripts["pdf.worker.min.js"]}\n</script>')
     parts.append("<script>pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([document.getElementById('pdf-worker').textContent], {type:'application/javascript'}));</script>")
     parts += app_scripts()
-    html = remove_server_pdf_scripts(html)
-    html = html.replace('<script src="/static/app.js"></script>', '\n'.join(parts))
+    html = with_scripts(html, parts)
     html = html.replace('QuoteLine · Comparison workspace', 'QuoteLine · Standalone comparison workspace')
     output = ROOT / 'QuoteLine-Standalone.html'
     output.write_text(html)

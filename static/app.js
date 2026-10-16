@@ -396,9 +396,12 @@ $('addQuoteBtn').addEventListener('click',async()=>{
 $('exportBtn').addEventListener('click',async()=>{
   const button=$('exportBtn');button.disabled=true;button.textContent='Preparing spreadsheet…';
   try{
-    const res=await fetch('/api/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project:$('project').value,quotes:state.quotes,groups:state.groups})});
-    if(!res.ok)throw new Error('Export failed');
-    const url=URL.createObjectURL(await res.blob());const a=document.createElement('a');a.href=url;a.download='quote-comparison.xlsx';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    if(!window.QuoteLineWorkbook)throw new Error('The spreadsheet library did not load. Check your internet connection and reload the page.');
+    await refresh();
+    const quotes=state.quotes.map(q=>({...q,source_file:state.imported.find(f=>f.id===q.id)?.name||''}));
+    const buffer=await QuoteLineWorkbook.build({project:$('project').value,quotes,report});
+    const file=($('project').value.trim()||'quote-comparison').replace(/[^\w .-]+/g,'').trim().replace(/\s+/g,'-')||'quote-comparison';
+    const url=URL.createObjectURL(new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));const a=document.createElement('a');a.href=url;a.download=`${file}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }catch(err){alert(err.message)}finally{button.disabled=false;button.textContent='↧   Export comparison'}
 });
 refresh();
