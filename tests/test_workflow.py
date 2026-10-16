@@ -69,6 +69,20 @@ Document Total     7,927.00      792.70     8,719.70'''
         self.assertEqual(report['covered'], [1, 1])
         self.assertEqual(report['complete'], [False, False])
 
+    def test_edited_line_total_reconciles_with_comparison_and_export(self):
+        # A manually entered line total can imply a unit rate with more than two decimals.
+        quotes = [{'name': 'Edited supplier', 'items': [{'description': 'Custom bracket', 'code': 'BR1',
+                   'qty': 3, 'unit': 'ea', 'unit_price': 33.333333, 'total': 100,
+                   'source': 'Manual addition'}]}]
+        groups = build_groups(quotes, [])
+        report = compare(quotes, groups)
+        self.assertEqual(report['totals'], [100])
+        with app.test_client() as client:
+            response = client.post('/api/export', json={'quotes': quotes, 'groups': groups})
+        book = openpyxl.load_workbook(io.BytesIO(response.data), data_only=True)
+        self.assertEqual(book['Financial summary']['I4'].value, 100)
+        self.assertEqual(book['Source lines']['G2'].value, 100)
+
     def test_pdf_line_extraction(self):
         pdf = fitz.open()
         page = pdf.new_page()

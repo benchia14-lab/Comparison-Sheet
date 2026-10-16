@@ -14,6 +14,7 @@
 .pdf-preview-dialog{width:min(1500px,96vw);height:min(950px,94vh);max-width:none;max-height:none;margin:auto;padding:0;border:1px solid #dce7df;border-radius:12px;box-shadow:0 20px 70px #0d281e55;color:var(--ink);background:#fff}.pdf-preview-dialog::backdrop{background:#112a22aa}.pdf-preview-shell{height:100%;display:flex;flex-direction:column}.pdf-preview-toolbar{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:17px 22px;border-bottom:1px solid #dde8e0}.pdf-preview-toolbar h2{font-size:18px;margin:4px 0}.pdf-preview-toolbar p{font-size:11px;color:#82948a;margin:0}.pdf-preview-actions{display:flex;gap:8px;align-items:center}.pdf-preview-actions a{text-decoration:none;white-space:nowrap}.pdf-preview-actions button{box-shadow:none}.pdf-preview-split{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(390px,.9fr)}.pdf-preview-document,.pdf-preview-extracted{min-width:0;min-height:0;display:flex;flex-direction:column}.pdf-preview-document{border-right:1px solid #dce7df;background:#e9eeeb}.pane-heading{display:flex;justify-content:space-between;gap:10px;padding:10px 15px;background:#f4f8f5;color:#597367;font-size:10px;font-weight:800;letter-spacing:1px}.pane-heading span{font-weight:400;letter-spacing:0;color:#8ea198}.pdf-preview-document iframe{width:100%;height:100%;border:0;background:#e9eeeb}.pdf-preview-summary{display:flex;flex-wrap:wrap;gap:12px 20px;padding:13px 15px;border-bottom:1px solid #edf1ed}.pdf-preview-summary span{display:flex;flex-direction:column;gap:4px;color:#91a195;font-size:10px}.pdf-preview-summary strong{font-size:11px;color:#254e3d}.preview-lines-scroll{overflow:auto;flex:1}.preview-lines-table{min-width:610px}.preview-lines-table th,.preview-lines-table td{padding:11px 10px;vertical-align:top}.preview-lines-table td:first-child{min-width:220px;max-width:290px}.preview-lines-table td small{display:block;color:#8d9f93;margin-top:3px;line-height:1.35}.preview-help{padding:10px 15px;margin:0;border-top:1px solid #edf1ed;color:#83978b;font-size:10px}.preview-trigger{white-space:nowrap}.quote-detail-head .pdf-preview-actions{margin-left:auto}@media(max-width:850px){.pdf-preview-dialog{width:98vw;height:97vh}.pdf-preview-split{display:flex;flex-direction:column}.pdf-preview-document{height:50%;border-right:0;border-bottom:1px solid #dce7df}.pdf-preview-extracted{height:50%}.pdf-preview-toolbar{padding:10px}.pdf-preview-toolbar p{display:none}.pdf-preview-actions{gap:4px}.pdf-preview-actions a,.pdf-preview-actions button{font-size:10px;padding:8px}}
 .preview-mini{display:block;margin-top:8px;padding:4px 6px;border:1px solid #b9d7c3;border-radius:4px;background:#fff;color:#286d4e;cursor:pointer;font:700 9px 'DM Sans',sans-serif;letter-spacing:0}.preview-mini:hover,.preview-trigger:hover{background:#e8f5eb}
 .pdf-preview-pages{flex:1;min-height:0;overflow:auto;padding:16px;background:#dce4df;color:#456556;text-align:center;font-size:12px}.pdf-rendered-page{width:max-content;max-width:100%;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px #17352f33}.pdf-rendered-page canvas{display:block;max-width:100%;height:auto!important}.pdf-preview-document iframe[hidden],.pdf-preview-pages[hidden]{display:none}
+.pdf-preview-split{grid-template-columns:minmax(0,.9fr) minmax(500px,1.1fr)}.pdf-preview-extracted .pane-heading{align-items:center}.pdf-preview-extracted .pane-heading button{letter-spacing:0;color:#246e50}.preview-lines-table{min-width:720px}.preview-lines-table th,.preview-lines-table td{padding:9px 7px}.preview-lines-table td:first-child{min-width:205px;max-width:230px}.preview-lines-table td:nth-child(2){min-width:82px}.preview-lines-table td:nth-child(3),.preview-lines-table td:nth-child(4){min-width:96px}.preview-lines-table td:nth-child(5){min-width:85px}.preview-lines-table td:last-child{min-width:69px}.preview-field-label{display:block;font-size:9px;font-weight:700;color:#7f9386;margin-bottom:7px}.preview-field-label input,.preview-field-label textarea{display:block;width:100%;margin-top:3px;border:1px solid #cfddd3;border-radius:4px;background:#fff;padding:5px 6px;color:#233a2c;font:500 11px 'DM Sans',sans-serif;resize:vertical}.preview-field-label input:focus,.preview-field-label textarea:focus{outline:2px solid #8ac9a3}.preview-source{font-size:10px;line-height:1.4;color:#7a9181}.preview-source small{color:#2a7855;font-weight:700}.preview-remove,.preview-save{border:1px solid #dfbfb8;border-radius:4px;background:#fff;color:#a65449;padding:5px 7px;cursor:pointer;font-size:10px;margin-bottom:5px}.preview-save{background:#24785b;border-color:#24785b;color:#fff}.preview-draft{background:#f2faf3}.preview-empty td{text-align:center;color:#7b9181;padding:25px}@media(max-width:850px){.pdf-preview-split{display:flex;flex-direction:column}}
 
 </style>
 </head>
@@ -60,7 +61,7 @@
   <dialog id="pdfPreviewDialog" class="pdf-preview-dialog" aria-labelledby="pdfPreviewTitle">
     <div class="pdf-preview-shell">
       <div class="pdf-preview-toolbar"><div><span class="heading-eyebrow">SOURCE DOCUMENT / CROSS-CHECK</span><h2 id="pdfPreviewTitle">Original supplier PDF</h2><p id="pdfPreviewSubtitle">Compare the source PDF with the extracted lines.</p></div><div class="pdf-preview-actions"><a id="pdfOpenLink" class="subtle-btn" target="_blank" rel="noopener noreferrer">Open PDF in new tab ↗</a><button id="pdfPreviewClose" class="export-btn" type="button">Close</button></div></div>
-      <div class="pdf-preview-split"><div class="pdf-preview-document"><div class="pane-heading">ORIGINAL PDF <span>Scroll through the uploaded pages</span></div><div id="pdfPreviewPages" class="pdf-preview-pages" role="region" aria-label="Original supplier PDF pages"></div><iframe id="pdfPreviewFrame" title="Original supplier PDF" src="about:blank" hidden></iframe></div><div class="pdf-preview-extracted"><div class="pane-heading">EXTRACTED QUOTE <span>Standardized line items</span></div><div id="pdfPreviewSummary" class="pdf-preview-summary"></div><div class="preview-lines-scroll"><table class="preview-lines-table"><thead><tr><th>CODE & DESCRIPTION</th><th>QTY</th><th>UNIT PRICE</th><th>LINE TOTAL</th><th>SOURCE</th></tr></thead><tbody id="pdfPreviewLines"></tbody></table></div><p class="preview-help">Check each extracted line against the PDF. The comparison uses these unit prices.</p></div></div>
+      <div class="pdf-preview-split"><div class="pdf-preview-document"><div class="pane-heading">ORIGINAL PDF <span>Scroll through the uploaded pages</span></div><div id="pdfPreviewPages" class="pdf-preview-pages" role="region" aria-label="Original supplier PDF pages"></div><iframe id="pdfPreviewFrame" title="Original supplier PDF" src="about:blank" hidden></iframe></div><div class="pdf-preview-extracted"><div class="pane-heading">EXTRACTED QUOTE <button id="pdfAddLine" class="subtle-btn" type="button">+ Add line</button></div><div id="pdfPreviewSummary" class="pdf-preview-summary"></div><div class="preview-lines-scroll"><table class="preview-lines-table"><thead><tr><th>CODE & DESCRIPTION</th><th>QTY / UNIT</th><th>UNIT PRICE</th><th>LINE TOTAL</th><th>SOURCE</th><th></th></tr></thead><tbody id="pdfPreviewLines"></tbody></table></div><p class="preview-help">Changes update the comparison and export. The PDF and its quoted total remain the original reference.</p></div></div>
     </div>
   </dialog>
   <script>
@@ -332,7 +333,7 @@ for(var r="",i=0;e>i;i++)r+=String.fromCharCode(t[i]);return r}var h=t("./common
     const names=quotes.map(q=>q.name),totals=quotes.map(()=>0),covered=quotes.map(()=>0);
     const rows=groups.map(group=>{
       const qty=number(group.qty)||1;
-      const prices=quotes.map((q,i)=>group.matches?.[i]?number(group.matches[i].unit_price):null);
+      const prices=quotes.map((q,i)=>{const value=Number(group.matches?.[i]?.unit_price);return group.matches?.[i]&&Number.isFinite(value)&&value>=0?Math.round(value*1e6)/1e6:null});
       const available=prices.filter(p=>p!=null),best=available.length?Math.min(...available):null;
       const values=prices.map(p=>p==null?null:Math.round(qty*p*100)/100);
       values.forEach((v,i)=>{if(v!=null){totals[i]+=v;covered[i]++}});
@@ -394,6 +395,10 @@ const num = value => Number.isFinite(Number(value)) ? Number(value) : null;
 let report = null;
 const previewUrls = new Map();
 let previewRender = 0;
+let previewQuoteId = null;
+const newId = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+const cents = value => Math.round(value * 100) / 100;
+const rate = value => Math.round(value * 1e6) / 1e6;
 const pageCopy = {
   overview: ['Quote comparison', 'Bring every supplier onto the same page. Find the best price, line by line.'],
   quotes: ['Quotes', 'Review every supplier quote in one consistent format, including the source line behind each price.'],
@@ -508,21 +513,81 @@ async function renderPdfPreview(url, token) {
     pages.textContent = 'Preview unavailable. Open the PDF in a new tab to inspect it.';
   }
 }
-function openPdfPreview(id) {
-  const quote = state.quotes.find(q => q.id === id);
-  const url = previewUrls.get(id);
-  if (!quote || !url) return;
-  const sourceFile = state.imported.find(f => f.id === id)?.name || quote.name;
-  $('pdfPreviewTitle').textContent = `Original PDF · ${quote.name}`;
-  $('pdfPreviewSubtitle').textContent = sourceFile;
+function renderPreviewEditor() {
+  const quote = state.quotes.find(q => q.id === previewQuoteId);
+  if (!quote) return;
+  const lineCost = cents(quote.items.reduce((sum, item) => sum + (Number(item.total) || 0), 0));
   $('pdfPreviewSummary').innerHTML = [
     ['Quote no.', quote.quote_number || '—'],
     ['Date', quote.quote_date || '—'],
     ['Price basis', quote.price_basis || 'unspecified'],
     ['Line items', quote.items.length],
-    ['Document total', cash(quote.quoted_total)]
+    ['Current line cost', cash(lineCost)],
+    ['Original PDF total', cash(quote.quoted_total)]
   ].map(([label,value]) => `<span>${esc(label)}<strong>${esc(value)}</strong></span>`).join('');
-  $('pdfPreviewLines').innerHTML = quote.items.length ? quote.items.map(entry => `<tr><td><strong>${esc(entry.code || 'No code')}</strong><small>${esc(entry.full_description || entry.description)}</small></td><td>${esc(entry.qty)} ${esc(entry.unit)}</td><td>${cash(entry.unit_price)}</td><td>${cash(entry.total)}</td><td>${esc(entry.source)}</td></tr>`).join('') : '<tr><td colspan="5">No priced items were extracted from this PDF.</td></tr>';
+  $('pdfPreviewLines').innerHTML = quote.items.length ? quote.items.map((entry, index) => `<tr data-line-id="${esc(entry.line_id)}"><td><label class="preview-field-label">Code<input aria-label="Line ${index+1} code" data-edit="code" value="${esc(entry.code || '')}"></label><label class="preview-field-label">Description<textarea aria-label="Line ${index+1} description" data-edit="description" rows="2">${esc(entry.full_description || entry.description)}</textarea></label></td><td><label class="preview-field-label">Qty<input aria-label="Line ${index+1} quantity" data-edit="qty" type="number" min="0.000001" step="any" value="${esc(entry.qty)}"></label><label class="preview-field-label">Unit<input aria-label="Line ${index+1} unit" data-edit="unit" value="${esc(entry.unit || 'ea')}"></label></td><td><label class="preview-field-label">Unit price<input aria-label="Line ${index+1} unit price" data-edit="unit_price" type="number" min="0" step="any" value="${esc(entry.unit_price)}"></label></td><td><label class="preview-field-label">Line total<input aria-label="Line ${index+1} line total" data-edit="total" type="number" min="0" step="any" value="${esc(entry.total)}"></label></td><td class="preview-source">${esc(entry.source || 'Manual addition')}${entry.edited ? '<small>Edited</small>' : ''}</td><td><button type="button" class="preview-remove" data-preview-action="remove" aria-label="Remove line ${index+1}">Remove</button></td></tr>`).join('') : '<tr class="preview-empty"><td colspan="6">No lines yet. Use Add line to enter one.</td></tr>';
+}
+function updateGroupsForLine(quoteIndex, lineId, entry) {
+  state.groups = state.groups.filter(group => {
+    if (group.matches?.[quoteIndex]?.line_id !== lineId) return true;
+    if (entry) group.matches[quoteIndex] = {...entry};
+    else delete group.matches[quoteIndex];
+    const otherMatches = Object.keys(group.matches).length;
+    const fromBaseline = state.baseline.some(b => b.code === group.code && b.description === group.description);
+    if (!otherMatches && !fromBaseline) return false;
+    if (entry && otherMatches === 1 && !fromBaseline) {
+      group.description = entry.description;
+      group.code = entry.code;
+      group.qty = entry.qty;
+      group.unit = entry.unit;
+    }
+    return true;
+  });
+}
+function addGroupForLine(quoteIndex, entry) {
+  const normalized = value => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const match = state.groups.find(group => !group.matches?.[quoteIndex] && ((entry.code && group.code && normalized(entry.code) === normalized(group.code)) || normalized(entry.description) === normalized(group.description)));
+  if (match) match.matches[quoteIndex] = {...entry};
+  else state.groups.push({description:entry.description,code:entry.code,qty:entry.qty,unit:entry.unit,baseline_price:null,matches:{[quoteIndex]:{...entry}},confidence:'new'});
+}
+async function savePreviewChange(quote, lineId, field, value) {
+  const quoteIndex = state.quotes.indexOf(quote);
+  const entry = quote.items.find(item => item.line_id === lineId);
+  if (!entry) return;
+  if (['qty','unit_price','total'].includes(field)) {
+    const number = Number(value);
+    if (value === '' || !Number.isFinite(number) || number < 0 || (field === 'qty' && number <= 0)) { alert('Enter a valid positive quantity or non-negative price.'); renderPreviewEditor(); return; }
+    if (field === 'total') { entry.total = cents(number); entry.unit_price = rate(entry.total / Number(entry.qty)); }
+    else if (field === 'unit_price') { entry.unit_price = rate(number); entry.total = cents(Number(entry.qty) * entry.unit_price); }
+    else { entry.qty = number; entry.total = cents(entry.qty * Number(entry.unit_price)); }
+  } else {
+    value = value.trim();
+    if (field === 'description' && !value) { alert('A description is required.'); renderPreviewEditor(); return; }
+    if (field === 'description') { entry.description = value; entry.full_description = value; }
+    else entry[field] = field === 'code' ? value.toUpperCase() : value;
+  }
+  entry.edited = true;
+  entry.price_warning = false;
+  delete entry.inc_gst_unit;
+  delete entry.inc_gst_total;
+  updateGroupsForLine(quoteIndex, lineId, entry);
+  const record = state.imported.find(file => file.id === quote.id);
+  if (record) record.items = quote.items;
+  const scroll = document.querySelector('.preview-lines-scroll').scrollTop;
+  await refresh();
+  renderPreviewEditor();
+  document.querySelector('.preview-lines-scroll').scrollTop = scroll;
+}
+function openPdfPreview(id) {
+  const quote = state.quotes.find(q => q.id === id);
+  const url = previewUrls.get(id);
+  if (!quote || !url) return;
+  const sourceFile = state.imported.find(f => f.id === id)?.name || quote.name;
+  previewQuoteId = id;
+  quote.items.forEach(entry => { if (!entry.line_id) entry.line_id = newId(); });
+  $('pdfPreviewTitle').textContent = `Original PDF · ${quote.name}`;
+  $('pdfPreviewSubtitle').textContent = sourceFile;
+  renderPreviewEditor();
   $('pdfOpenLink').href = url;
   $('pdfPreviewDialog').showModal();
   const token = ++previewRender;
@@ -534,7 +599,59 @@ document.addEventListener('click', event => {
   if (button) {event.preventDefault(); openPdfPreview(button.dataset.preview)}
 });
 $('pdfPreviewClose').addEventListener('click', () => $('pdfPreviewDialog').close());
-$('pdfPreviewDialog').addEventListener('close', () => { previewRender++; $('pdfPreviewPages').replaceChildren(); $('pdfPreviewFrame').src = 'about:blank'; });
+$('pdfPreviewDialog').addEventListener('close', () => { previewQuoteId = null; previewRender++; $('pdfPreviewPages').replaceChildren(); $('pdfPreviewFrame').src = 'about:blank'; });
+$('pdfAddLine').addEventListener('click', () => {
+  const tbody = $('pdfPreviewLines');
+  tbody.querySelector('.preview-empty')?.remove();
+  if (tbody.querySelector('.preview-draft')) { tbody.querySelector('.preview-draft textarea').focus(); return; }
+  tbody.insertAdjacentHTML('beforeend', '<tr class="preview-draft"><td><label class="preview-field-label">Code<input data-draft="code" placeholder="Optional code"></label><label class="preview-field-label">Description<textarea data-draft="description" rows="2" placeholder="Item description"></textarea></label></td><td><label class="preview-field-label">Qty<input data-draft="qty" type="number" min="0.000001" step="any" value="1"></label><label class="preview-field-label">Unit<input data-draft="unit" value="ea"></label></td><td><label class="preview-field-label">Unit price<input data-draft="unit_price" type="number" min="0" step="any" value="0"></label></td><td><label class="preview-field-label">Line total<input data-draft="total" type="number" min="0" step="any" value="0"></label></td><td class="preview-source">Manual addition</td><td><button type="button" class="preview-save" data-preview-action="save">Save line</button><button type="button" class="preview-remove" data-preview-action="cancel">Cancel</button></td></tr>');
+  tbody.querySelector('.preview-draft textarea').focus();
+});
+$('pdfPreviewLines').addEventListener('change', async event => {
+  const draft = event.target.closest('[data-draft]');
+  if (draft && ['qty','unit_price','total'].includes(draft.dataset.draft)) {
+    const row = draft.closest('tr');
+    const qty = Number(row.querySelector('[data-draft="qty"]').value);
+    const price = Number(row.querySelector('[data-draft="unit_price"]').value);
+    if (qty > 0 && price >= 0) {
+      if (draft.dataset.draft === 'total') row.querySelector('[data-draft="unit_price"]').value = rate(Number(draft.value) / qty);
+      else row.querySelector('[data-draft="total"]').value = cents(qty * price);
+    }
+    return;
+  }
+  const input = event.target.closest('[data-edit]');
+  if (!input || !previewQuoteId) return;
+  const quote = state.quotes.find(q => q.id === previewQuoteId);
+  if (quote) await savePreviewChange(quote, input.closest('tr').dataset.lineId, input.dataset.edit, input.value);
+});
+$('pdfPreviewLines').addEventListener('click', async event => {
+  const button = event.target.closest('[data-preview-action]');
+  if (!button || !previewQuoteId) return;
+  const quote = state.quotes.find(q => q.id === previewQuoteId);
+  if (!quote) return;
+  const action = button.dataset.previewAction;
+  if (action === 'cancel') { renderPreviewEditor(); return; }
+  if (action === 'save') {
+    const row = button.closest('tr');
+    const get = key => row.querySelector(`[data-draft="${key}"]`).value.trim();
+    const description = get('description'), qty = Number(get('qty')), unitPrice = Number(get('unit_price')), total = Number(get('total'));
+    if (!description || !Number.isFinite(qty) || qty <= 0 || !Number.isFinite(unitPrice) || unitPrice < 0 || !Number.isFinite(total) || total < 0) { alert('Enter a description, positive quantity and valid prices.'); return; }
+    const entry = {line_id:newId(),code:get('code').toUpperCase(),description,full_description:description,qty,unit:get('unit') || 'ea',unit_price:rate(unitPrice),total:cents(qty*unitPrice),source:'Manual addition',edited:true,price_warning:false};
+    if (Math.abs(total - entry.total) > .01) { entry.total = cents(total); entry.unit_price = rate(entry.total / qty); }
+    quote.items.push(entry);
+    addGroupForLine(state.quotes.indexOf(quote), entry);
+  } else if (action === 'remove') {
+    const lineId = button.closest('tr').dataset.lineId;
+    const index = quote.items.findIndex(item => item.line_id === lineId);
+    if (index < 0) return;
+    quote.items.splice(index, 1);
+    updateGroupsForLine(state.quotes.indexOf(quote), lineId, null);
+  }
+  const record = state.imported.find(file => file.id === quote.id);
+  if (record) record.items = quote.items;
+  await refresh();
+  renderPreviewEditor();
+});
 window.addEventListener('beforeunload', () => {for(const url of previewUrls.values()) URL.revokeObjectURL(url)});
 
 async function importFiles(files) {
@@ -549,7 +666,7 @@ async function importFiles(files) {
     parsed.forEach((entry, i) => {
       if (entry.kind === 'error') { alert(`${entry.name}: ${entry.warning}`); return; }
       const name = files[i]?.name || entry.name;
-      const id = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+      const id = newId();
       if(entry.kind === 'baseline') {
         for(const previous of state.imported.filter(f=>f.kind==='baseline')){
           if(previewUrls.has(previous.id)){URL.revokeObjectURL(previewUrls.get(previous.id));previewUrls.delete(previous.id)}
@@ -557,10 +674,11 @@ async function importFiles(files) {
         state.imported = state.imported.filter(f => f.kind !== 'baseline');
       }
       const record = {...entry,name,id};
+      if (entry.kind !== 'baseline') record.items = entry.items.map(item => ({...item,line_id:newId()}));
       state.imported.push(record);
       if(name.toLowerCase().endsWith('.pdf') && files[i]) previewUrls.set(id, URL.createObjectURL(files[i]));
       if (entry.kind === 'baseline') {state.baseline = entry.items; state.baselineName = name;}
-      else state.quotes.push({id,name:entry.name,items:entry.items,freight:entry.freight||0,tax:entry.tax||0,
+      else state.quotes.push({id,name:entry.name,items:record.items,freight:entry.freight||0,tax:entry.tax||0,
                               discount:entry.discount||0,quoted_total:entry.quoted_total??null,price_basis:entry.price_basis||'unspecified',
                               quote_number:entry.quote_number||'',quote_date:entry.quote_date||'',expiry_date:entry.expiry_date||'',
                               raw_text:entry.raw_text||''});
@@ -600,7 +718,7 @@ $('comparisonTable').addEventListener('change',async e=>{
     }
     else {
       const price=Math.max(0,num(input.value)||0);
-      const existing=sourceItem || {description:group.description,code:group.code,qty:group.qty,unit:group.unit,source:'Manual correction'};
+      const existing=sourceItem || {line_id:newId(),description:group.description,code:group.code,qty:group.qty,unit:group.unit,source:'Manual correction'};
       existing.unit_price=price; existing.total=price*existing.qty;
       existing.price_warning=false;
       group.matches[qi]=existing;

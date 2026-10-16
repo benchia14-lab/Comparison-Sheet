@@ -6,6 +6,10 @@ const num = value => Number.isFinite(Number(value)) ? Number(value) : null;
 let report = null;
 const previewUrls = new Map();
 let previewRender = 0;
+let previewQuoteId = null;
+const newId = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+const cents = value => Math.round(value * 100) / 100;
+const rate = value => Math.round(value * 1e6) / 1e6;
 const pageCopy = {
   overview: ['Quote comparison', 'Bring every supplier onto the same page. Find the best price, line by line.'],
   quotes: ['Quotes', 'Review every supplier quote in one consistent format, including the source line behind each price.'],
@@ -120,21 +124,81 @@ async function renderPdfPreview(url, token) {
     pages.textContent = 'Preview unavailable. Open the PDF in a new tab to inspect it.';
   }
 }
-function openPdfPreview(id) {
-  const quote = state.quotes.find(q => q.id === id);
-  const url = previewUrls.get(id);
-  if (!quote || !url) return;
-  const sourceFile = state.imported.find(f => f.id === id)?.name || quote.name;
-  $('pdfPreviewTitle').textContent = `Original PDF · ${quote.name}`;
-  $('pdfPreviewSubtitle').textContent = sourceFile;
+function renderPreviewEditor() {
+  const quote = state.quotes.find(q => q.id === previewQuoteId);
+  if (!quote) return;
+  const lineCost = cents(quote.items.reduce((sum, item) => sum + (Number(item.total) || 0), 0));
   $('pdfPreviewSummary').innerHTML = [
     ['Quote no.', quote.quote_number || '—'],
     ['Date', quote.quote_date || '—'],
     ['Price basis', quote.price_basis || 'unspecified'],
     ['Line items', quote.items.length],
-    ['Document total', cash(quote.quoted_total)]
+    ['Current line cost', cash(lineCost)],
+    ['Original PDF total', cash(quote.quoted_total)]
   ].map(([label,value]) => `<span>${esc(label)}<strong>${esc(value)}</strong></span>`).join('');
-  $('pdfPreviewLines').innerHTML = quote.items.length ? quote.items.map(entry => `<tr><td><strong>${esc(entry.code || 'No code')}</strong><small>${esc(entry.full_description || entry.description)}</small></td><td>${esc(entry.qty)} ${esc(entry.unit)}</td><td>${cash(entry.unit_price)}</td><td>${cash(entry.total)}</td><td>${esc(entry.source)}</td></tr>`).join('') : '<tr><td colspan="5">No priced items were extracted from this PDF.</td></tr>';
+  $('pdfPreviewLines').innerHTML = quote.items.length ? quote.items.map((entry, index) => `<tr data-line-id="${esc(entry.line_id)}"><td><label class="preview-field-label">Code<input aria-label="Line ${index+1} code" data-edit="code" value="${esc(entry.code || '')}"></label><label class="preview-field-label">Description<textarea aria-label="Line ${index+1} description" data-edit="description" rows="2">${esc(entry.full_description || entry.description)}</textarea></label></td><td><label class="preview-field-label">Qty<input aria-label="Line ${index+1} quantity" data-edit="qty" type="number" min="0.000001" step="any" value="${esc(entry.qty)}"></label><label class="preview-field-label">Unit<input aria-label="Line ${index+1} unit" data-edit="unit" value="${esc(entry.unit || 'ea')}"></label></td><td><label class="preview-field-label">Unit price<input aria-label="Line ${index+1} unit price" data-edit="unit_price" type="number" min="0" step="any" value="${esc(entry.unit_price)}"></label></td><td><label class="preview-field-label">Line total<input aria-label="Line ${index+1} line total" data-edit="total" type="number" min="0" step="any" value="${esc(entry.total)}"></label></td><td class="preview-source">${esc(entry.source || 'Manual addition')}${entry.edited ? '<small>Edited</small>' : ''}</td><td><button type="button" class="preview-remove" data-preview-action="remove" aria-label="Remove line ${index+1}">Remove</button></td></tr>`).join('') : '<tr class="preview-empty"><td colspan="6">No lines yet. Use Add line to enter one.</td></tr>';
+}
+function updateGroupsForLine(quoteIndex, lineId, entry) {
+  state.groups = state.groups.filter(group => {
+    if (group.matches?.[quoteIndex]?.line_id !== lineId) return true;
+    if (entry) group.matches[quoteIndex] = {...entry};
+    else delete group.matches[quoteIndex];
+    const otherMatches = Object.keys(group.matches).length;
+    const fromBaseline = state.baseline.some(b => b.code === group.code && b.description === group.description);
+    if (!otherMatches && !fromBaseline) return false;
+    if (entry && otherMatches === 1 && !fromBaseline) {
+      group.description = entry.description;
+      group.code = entry.code;
+      group.qty = entry.qty;
+      group.unit = entry.unit;
+    }
+    return true;
+  });
+}
+function addGroupForLine(quoteIndex, entry) {
+  const normalized = value => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const match = state.groups.find(group => !group.matches?.[quoteIndex] && ((entry.code && group.code && normalized(entry.code) === normalized(group.code)) || normalized(entry.description) === normalized(group.description)));
+  if (match) match.matches[quoteIndex] = {...entry};
+  else state.groups.push({description:entry.description,code:entry.code,qty:entry.qty,unit:entry.unit,baseline_price:null,matches:{[quoteIndex]:{...entry}},confidence:'new'});
+}
+async function savePreviewChange(quote, lineId, field, value) {
+  const quoteIndex = state.quotes.indexOf(quote);
+  const entry = quote.items.find(item => item.line_id === lineId);
+  if (!entry) return;
+  if (['qty','unit_price','total'].includes(field)) {
+    const number = Number(value);
+    if (value === '' || !Number.isFinite(number) || number < 0 || (field === 'qty' && number <= 0)) { alert('Enter a valid positive quantity or non-negative price.'); renderPreviewEditor(); return; }
+    if (field === 'total') { entry.total = cents(number); entry.unit_price = rate(entry.total / Number(entry.qty)); }
+    else if (field === 'unit_price') { entry.unit_price = rate(number); entry.total = cents(Number(entry.qty) * entry.unit_price); }
+    else { entry.qty = number; entry.total = cents(entry.qty * Number(entry.unit_price)); }
+  } else {
+    value = value.trim();
+    if (field === 'description' && !value) { alert('A description is required.'); renderPreviewEditor(); return; }
+    if (field === 'description') { entry.description = value; entry.full_description = value; }
+    else entry[field] = field === 'code' ? value.toUpperCase() : value;
+  }
+  entry.edited = true;
+  entry.price_warning = false;
+  delete entry.inc_gst_unit;
+  delete entry.inc_gst_total;
+  updateGroupsForLine(quoteIndex, lineId, entry);
+  const record = state.imported.find(file => file.id === quote.id);
+  if (record) record.items = quote.items;
+  const scroll = document.querySelector('.preview-lines-scroll').scrollTop;
+  await refresh();
+  renderPreviewEditor();
+  document.querySelector('.preview-lines-scroll').scrollTop = scroll;
+}
+function openPdfPreview(id) {
+  const quote = state.quotes.find(q => q.id === id);
+  const url = previewUrls.get(id);
+  if (!quote || !url) return;
+  const sourceFile = state.imported.find(f => f.id === id)?.name || quote.name;
+  previewQuoteId = id;
+  quote.items.forEach(entry => { if (!entry.line_id) entry.line_id = newId(); });
+  $('pdfPreviewTitle').textContent = `Original PDF · ${quote.name}`;
+  $('pdfPreviewSubtitle').textContent = sourceFile;
+  renderPreviewEditor();
   $('pdfOpenLink').href = url;
   $('pdfPreviewDialog').showModal();
   const token = ++previewRender;
@@ -146,7 +210,59 @@ document.addEventListener('click', event => {
   if (button) {event.preventDefault(); openPdfPreview(button.dataset.preview)}
 });
 $('pdfPreviewClose').addEventListener('click', () => $('pdfPreviewDialog').close());
-$('pdfPreviewDialog').addEventListener('close', () => { previewRender++; $('pdfPreviewPages').replaceChildren(); $('pdfPreviewFrame').src = 'about:blank'; });
+$('pdfPreviewDialog').addEventListener('close', () => { previewQuoteId = null; previewRender++; $('pdfPreviewPages').replaceChildren(); $('pdfPreviewFrame').src = 'about:blank'; });
+$('pdfAddLine').addEventListener('click', () => {
+  const tbody = $('pdfPreviewLines');
+  tbody.querySelector('.preview-empty')?.remove();
+  if (tbody.querySelector('.preview-draft')) { tbody.querySelector('.preview-draft textarea').focus(); return; }
+  tbody.insertAdjacentHTML('beforeend', '<tr class="preview-draft"><td><label class="preview-field-label">Code<input data-draft="code" placeholder="Optional code"></label><label class="preview-field-label">Description<textarea data-draft="description" rows="2" placeholder="Item description"></textarea></label></td><td><label class="preview-field-label">Qty<input data-draft="qty" type="number" min="0.000001" step="any" value="1"></label><label class="preview-field-label">Unit<input data-draft="unit" value="ea"></label></td><td><label class="preview-field-label">Unit price<input data-draft="unit_price" type="number" min="0" step="any" value="0"></label></td><td><label class="preview-field-label">Line total<input data-draft="total" type="number" min="0" step="any" value="0"></label></td><td class="preview-source">Manual addition</td><td><button type="button" class="preview-save" data-preview-action="save">Save line</button><button type="button" class="preview-remove" data-preview-action="cancel">Cancel</button></td></tr>');
+  tbody.querySelector('.preview-draft textarea').focus();
+});
+$('pdfPreviewLines').addEventListener('change', async event => {
+  const draft = event.target.closest('[data-draft]');
+  if (draft && ['qty','unit_price','total'].includes(draft.dataset.draft)) {
+    const row = draft.closest('tr');
+    const qty = Number(row.querySelector('[data-draft="qty"]').value);
+    const price = Number(row.querySelector('[data-draft="unit_price"]').value);
+    if (qty > 0 && price >= 0) {
+      if (draft.dataset.draft === 'total') row.querySelector('[data-draft="unit_price"]').value = rate(Number(draft.value) / qty);
+      else row.querySelector('[data-draft="total"]').value = cents(qty * price);
+    }
+    return;
+  }
+  const input = event.target.closest('[data-edit]');
+  if (!input || !previewQuoteId) return;
+  const quote = state.quotes.find(q => q.id === previewQuoteId);
+  if (quote) await savePreviewChange(quote, input.closest('tr').dataset.lineId, input.dataset.edit, input.value);
+});
+$('pdfPreviewLines').addEventListener('click', async event => {
+  const button = event.target.closest('[data-preview-action]');
+  if (!button || !previewQuoteId) return;
+  const quote = state.quotes.find(q => q.id === previewQuoteId);
+  if (!quote) return;
+  const action = button.dataset.previewAction;
+  if (action === 'cancel') { renderPreviewEditor(); return; }
+  if (action === 'save') {
+    const row = button.closest('tr');
+    const get = key => row.querySelector(`[data-draft="${key}"]`).value.trim();
+    const description = get('description'), qty = Number(get('qty')), unitPrice = Number(get('unit_price')), total = Number(get('total'));
+    if (!description || !Number.isFinite(qty) || qty <= 0 || !Number.isFinite(unitPrice) || unitPrice < 0 || !Number.isFinite(total) || total < 0) { alert('Enter a description, positive quantity and valid prices.'); return; }
+    const entry = {line_id:newId(),code:get('code').toUpperCase(),description,full_description:description,qty,unit:get('unit') || 'ea',unit_price:rate(unitPrice),total:cents(qty*unitPrice),source:'Manual addition',edited:true,price_warning:false};
+    if (Math.abs(total - entry.total) > .01) { entry.total = cents(total); entry.unit_price = rate(entry.total / qty); }
+    quote.items.push(entry);
+    addGroupForLine(state.quotes.indexOf(quote), entry);
+  } else if (action === 'remove') {
+    const lineId = button.closest('tr').dataset.lineId;
+    const index = quote.items.findIndex(item => item.line_id === lineId);
+    if (index < 0) return;
+    quote.items.splice(index, 1);
+    updateGroupsForLine(state.quotes.indexOf(quote), lineId, null);
+  }
+  const record = state.imported.find(file => file.id === quote.id);
+  if (record) record.items = quote.items;
+  await refresh();
+  renderPreviewEditor();
+});
 window.addEventListener('beforeunload', () => {for(const url of previewUrls.values()) URL.revokeObjectURL(url)});
 
 async function importFiles(files) {
@@ -161,7 +277,7 @@ async function importFiles(files) {
     parsed.forEach((entry, i) => {
       if (entry.kind === 'error') { alert(`${entry.name}: ${entry.warning}`); return; }
       const name = files[i]?.name || entry.name;
-      const id = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+      const id = newId();
       if(entry.kind === 'baseline') {
         for(const previous of state.imported.filter(f=>f.kind==='baseline')){
           if(previewUrls.has(previous.id)){URL.revokeObjectURL(previewUrls.get(previous.id));previewUrls.delete(previous.id)}
@@ -169,10 +285,11 @@ async function importFiles(files) {
         state.imported = state.imported.filter(f => f.kind !== 'baseline');
       }
       const record = {...entry,name,id};
+      if (entry.kind !== 'baseline') record.items = entry.items.map(item => ({...item,line_id:newId()}));
       state.imported.push(record);
       if(name.toLowerCase().endsWith('.pdf') && files[i]) previewUrls.set(id, URL.createObjectURL(files[i]));
       if (entry.kind === 'baseline') {state.baseline = entry.items; state.baselineName = name;}
-      else state.quotes.push({id,name:entry.name,items:entry.items,freight:entry.freight||0,tax:entry.tax||0,
+      else state.quotes.push({id,name:entry.name,items:record.items,freight:entry.freight||0,tax:entry.tax||0,
                               discount:entry.discount||0,quoted_total:entry.quoted_total??null,price_basis:entry.price_basis||'unspecified',
                               quote_number:entry.quote_number||'',quote_date:entry.quote_date||'',expiry_date:entry.expiry_date||'',
                               raw_text:entry.raw_text||''});
@@ -212,7 +329,7 @@ $('comparisonTable').addEventListener('change',async e=>{
     }
     else {
       const price=Math.max(0,num(input.value)||0);
-      const existing=sourceItem || {description:group.description,code:group.code,qty:group.qty,unit:group.unit,source:'Manual correction'};
+      const existing=sourceItem || {line_id:newId(),description:group.description,code:group.code,qty:group.qty,unit:group.unit,source:'Manual correction'};
       existing.unit_price=price; existing.total=price*existing.qty;
       existing.price_warning=false;
       group.matches[qi]=existing;

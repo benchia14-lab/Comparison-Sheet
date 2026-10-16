@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import csv
 import io
+import math
 import re
 from difflib import SequenceMatcher
 from pathlib import Path
@@ -317,7 +318,14 @@ def compare(quotes, groups):
         prices = []
         for qi in range(len(quotes)):
             match = group.get('matches', {}).get(str(qi)) or group.get('matches', {}).get(qi)
-            prices.append(money(match.get('unit_price')) if match else None)
+            if match:
+                try:
+                    unit_price = float(match.get('unit_price'))
+                    prices.append(round(unit_price, 6) if math.isfinite(unit_price) and unit_price >= 0 else None)
+                except (TypeError, ValueError):
+                    prices.append(None)
+            else:
+                prices.append(None)
         available = [p for p in prices if p is not None]
         best = min(available) if available else None
         values = [round(qty * p, 2) if p is not None else None for p in prices]

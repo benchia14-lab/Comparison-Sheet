@@ -169,7 +169,7 @@
     const names=quotes.map(q=>q.name),totals=quotes.map(()=>0),covered=quotes.map(()=>0);
     const rows=groups.map(group=>{
       const qty=number(group.qty)||1;
-      const prices=quotes.map((q,i)=>group.matches?.[i]?number(group.matches[i].unit_price):null);
+      const prices=quotes.map((q,i)=>{const value=Number(group.matches?.[i]?.unit_price);return group.matches?.[i]&&Number.isFinite(value)&&value>=0?Math.round(value*1e6)/1e6:null});
       const available=prices.filter(p=>p!=null),best=available.length?Math.min(...available):null;
       const values=prices.map(p=>p==null?null:Math.round(qty*p*100)/100);
       values.forEach((v,i)=>{if(v!=null){totals[i]+=v;covered[i]++}});
