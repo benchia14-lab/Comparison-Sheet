@@ -41,6 +41,8 @@ def page():
     css = (ROOT / 'static/style.css').read_text()
     # Neither single-file page requests a Google font, so both look the same offline.
     css = css[css.index(':root'):]
+    icon = base64.b64encode((ROOT / 'static/favicon.png').read_bytes()).decode()
+    html = html.replace('href="/static/favicon.png"', f'href="data:image/png;base64,{icon}"')
     return html.replace('<link rel="stylesheet" href="/static/style.css">', f'<style>\n{css}\n</style>')
 
 

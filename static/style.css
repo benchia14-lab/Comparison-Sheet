@@ -14,3 +14,4 @@
 /* Fixed gray sidebar with red text. */
 .sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;background:#f0f0f0;color:#1f1f1f;border-right:1px solid #e0e0e0}.brand,.brand-light{color:#c8102e}.brand-mark{background:#c8102e;color:#fff}.workspace-label{color:#8a8a8a}nav a{color:#c8102e}nav a:hover{background:#e4e4e4;color:#a00d25}nav a.active{background:#fff;color:#c8102e;box-shadow:inset 3px 0 0 #c8102e,0 1px 3px #0000000d}.side-bottom{border-top-color:#dcdcdc}.side-note{color:#4a4a4a}.side-note small,.side-user small{color:#8a8a8a}.tiny-dot{background:#c8102e}.avatar{background:#c8102e;color:#fff}.side-user{color:#2a2a2a}
 @media(max-width:520px){.sidebar{height:auto;z-index:10;border-right:0;border-bottom:1px solid #e0e0e0}}
+.sign-out{width:100%;margin-top:14px;padding:8px 10px;border:1px solid #d6d6d6;border-radius:7px;background:#fff;color:#c8102e;font:700 11px 'DM Sans',sans-serif;cursor:pointer}.sign-out:hover{background:#f9e7ea;border-color:#c8102e}
