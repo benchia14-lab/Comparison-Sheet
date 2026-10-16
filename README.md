@@ -6,7 +6,9 @@ The sidebar has three separate pages: **Overview** for the import and summary, *
 
 For a download that runs directly in a browser without installing Python, download `QuoteLine-Standalone.html` from this repository and open it in your browser. Its spreadsheet, PDF and Word parsing libraries are bundled in the file, so it works offline.
 
-After editing the web UI or standalone parser, rebuild the single file with `.venv/bin/python scripts/build_standalone.py`. The script downloads pinned library versions over HTTPS and checks their SHA-256 digests before embedding them.
+`QuoteLine.html` is the same app as a standard, small (about 80 KB) HTML file. It loads the pinned spreadsheet, PDF and Word libraries from the jsDelivr CDN with integrity checks, so it needs an internet connection when it opens; your quote files are still processed only in the browser.
+
+After editing the web UI or standalone parser, rebuild both files with `.venv/bin/python scripts/build_standalone.py`. The script downloads pinned library versions over HTTPS and checks their SHA-256 digests before embedding them.
 
 ## Run
 

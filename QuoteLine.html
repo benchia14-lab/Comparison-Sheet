@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuoteLine · Comparison workspace</title>
+  <style>
+:root{--ink:#1b2e2b;--muted:#788984;--line:#e4eae7;--green:#176f59;--pale:#e6f4ed;--bg:#f7faf8}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-size:14px}.shell{display:flex;min-height:100vh}.sidebar{width:238px;flex:none;background:#17352f;color:#e9f2ee;display:flex;flex-direction:column;padding:30px 18px 25px}.brand{font-family:Manrope,sans-serif;font-weight:800;font-size:21px;letter-spacing:-.8px;display:flex;align-items:center;gap:10px;padding:0 14px}.brand-mark{width:31px;height:31px;display:grid;place-items:center;background:#58b490;color:#17352f;border-radius:9px;font-size:26px;line-height:1;transform:rotate(90deg)}.brand-light{color:#8bd0b2}.workspace-label{font-size:10px;letter-spacing:2px;font-weight:700;color:#8aa59a;margin:69px 14px 18px}nav{display:grid;gap:7px}nav a{color:#a9c0b6;text-decoration:none;padding:13px 14px;border-radius:9px;display:flex;gap:14px;align-items:center;font-size:14px;font-weight:600}nav a:first-letter{font-size:18px}nav a.active,nav a:hover{background:#2c5146;color:white}.side-bottom{margin-top:auto;border-top:1px solid #36554b;padding:22px 10px 0;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.side-note{width:100%;font-size:12px;color:#d4e4dc;line-height:1.6;margin-bottom:18px}.side-note small{color:#90aa9e;margin-left:14px}.tiny-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#7bcd9f;margin-right:5px}.avatar{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#6fc3a0;color:#19362e;font-size:11px;font-weight:800}.side-user{font-size:11px;font-weight:700}.side-user small{display:block;color:#96b3a5;font-weight:400;margin-top:3px}main{flex:1;min-width:0}.topbar{height:76px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 43px}.breadcrumb{color:#95a39f;font-size:12px}.breadcrumb span{margin:0 11px;color:#bdc9c4}.breadcrumb strong{color:#344941;font-weight:700}.top-right{display:flex;gap:18px;align-items:center}.saved-pill{font-size:11px;color:#287b60;background:#ebf7ef;padding:7px 12px;border-radius:15px;font-weight:700}.circle-icon{width:27px;height:27px;border:1px solid #d8e2dd;border-radius:50%;display:grid;place-items:center;color:#80958a;font-weight:700}.content{max-width:1500px;margin:auto;padding:42px 43px 38px}.eyebrow,.heading-eyebrow{font-size:10px;letter-spacing:2px;font-weight:800;color:#31816a}.slash{color:#bccbc3;margin:0 10px}.title-row{display:flex;justify-content:space-between;align-items:center;gap:20px}h1,h2{font-family:Manrope,sans-serif;letter-spacing:-1px}h1{font-size:32px;margin:10px 0 5px;font-weight:800}.subtitle{margin:0;color:#758781;font-size:13px}.export-btn{background:#20745c;color:white;border:0;border-radius:8px;padding:12px 17px;font-weight:700;font-size:12px;cursor:pointer;box-shadow:0 4px 9px #176f5921}.export-btn:hover{background:#135b47}.export-btn:disabled{opacity:.5;cursor:not-allowed}.project-line{display:flex;align-items:center;gap:11px;margin-top:30px;padding-bottom:27px;border-bottom:1px solid #e6ede9}.project-line label{font-size:12px;font-weight:700;color:#748680}.project-line input{border:1px solid #dce6e0;border-radius:6px;padding:8px 11px;color:#263b33;font:600 12px 'DM Sans',sans-serif;min-width:210px;background:#fff}.autosave{color:#a1aea7;font-size:11px;margin-left:auto}.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:27px}.summary-card{background:white;border:1px solid var(--line);border-radius:10px;padding:20px 20px 18px;min-height:156px;box-shadow:0 2px 7px #19392b05}.summary-icon{width:28px;height:28px;display:grid;place-items:center;border-radius:7px;margin-bottom:12px;font-weight:700}.summary-icon.green{background:#e8f5ed;color:#2a916f}.summary-icon.blue{background:#e9f0f8;color:#547ba2}.summary-icon.amber{background:#fbf1db;color:#b78335}.summary-icon.violet{background:#f0ebf8;color:#80649e}.summary-label{font-size:11px;font-weight:700;color:#7d9087}.summary-value{font-family:Manrope,sans-serif;font-size:26px;font-weight:800;margin:4px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.summary-value.compact{font-size:19px;margin:9px 0}.summary-foot{font-size:10px;color:#a0aaa5}.main-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:17px;margin-top:20px}.panel{background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 7px #19392b05}.upload-panel,.files-panel{min-height:321px}.panel-heading{padding:21px 23px 17px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.panel-heading h2{font-size:15px;letter-spacing:-.4px;margin:0 0 5px}.panel-heading p{font-size:11px;color:#9aa9a1;margin:0}.step{font-size:9px;letter-spacing:1.4px;font-weight:800;color:#85a098;white-space:nowrap}.dropzone{border:1.5px dashed #bdcec3;background:#fbfdfb;border-radius:8px;margin:0 22px;min-height:183px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;text-align:center;transition:background .2s,border-color .2s}.dropzone:hover,.dropzone.dragging{background:#edf8f1;border-color:#4a9d75}.upload-icon{width:38px;height:38px;display:grid;place-items:center;background:#e8f5ed;color:#3c9772;font-size:25px;border-radius:9px;margin-bottom:7px}.dropzone strong{font-size:12px}.dropzone span{font-size:11px;color:#8d9d94}.dropzone u{color:#208263;font-weight:700}.dropzone small{font-size:10px;color:#abb8af;margin-top:8px}.upload-footer{margin:16px 23px;font-size:10px;color:#9daa9f;display:flex;gap:7px;align-items:flex-start}.upload-footer span{color:#6b9f83;font-size:13px}.file-count{background:#f1f5f2;padding:5px 9px;border-radius:12px;font-size:10px;color:#789083;font-weight:700;white-space:nowrap}.file-list{padding:3px 21px 20px;max-height:245px;overflow:auto}.empty-files{border-top:1px solid #edf1ee;display:flex;flex-direction:column;align-items:center;justify-content:center;height:211px;color:#9eaea4;gap:7px}.empty-icon{font-size:29px;color:#cbd9cf}.empty-files strong{font-size:11px;color:#788c7e}.empty-files span{font-size:10px}.file-row{display:flex;gap:11px;align-items:center;border-top:1px solid #edf1ee;padding:12px 0}.file-tag{width:32px;height:32px;flex:none;border-radius:6px;display:grid;place-items:center;background:#edf6ef;color:#478b62;font-size:10px;font-weight:800}.file-info{min-width:0;flex:1}.file-info strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}.file-info small{display:block;color:#98a99c;font-size:10px;margin-top:3px}.file-remove{border:0;background:none;color:#a1b0a4;cursor:pointer;font-size:17px}.file-warning{color:#b56e34;font-size:10px;margin-top:4px}.comparison-panel{margin-top:20px}.comparison-heading{padding:24px 23px 22px;align-items:center}.heading-eyebrow{font-size:9px;margin-bottom:7px}.table-actions{display:flex;gap:7px}.subtle-btn{background:white;border:1px solid #dce7df;color:#517665;border-radius:7px;padding:8px 11px;font-size:10px;font-weight:700;cursor:pointer}.subtle-btn:hover{background:#eff8f1}.notice{margin:0 23px 15px;padding:11px 14px;border-radius:6px;background:#fff8e8;color:#8b6a31;font-size:11px}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse;text-align:left}th{background:#f5f8f5;color:#809188;font-size:9px;letter-spacing:1px;padding:13px 20px;white-space:nowrap;border-top:1px solid #eaf0eb;border-bottom:1px solid #eaf0eb}td{border-bottom:1px solid #eef2ef;padding:14px 20px;vertical-align:middle;font-size:11px}td:first-child{min-width:220px}td strong{font-size:11px;display:block}td small{color:#9ba9a0;display:block;margin-top:4px}.placeholder-row td{border:0}.table-empty{text-align:center;padding:41px;color:#8d9e93;font-size:12px}.table-empty small{display:block;margin-top:8px;color:#afbcb2}.quote-price{display:flex;gap:8px;align-items:center;margin:3px 0;white-space:nowrap}.quote-price b{font-size:10px;color:#809188;font-weight:600;min-width:82px;overflow:hidden;text-overflow:ellipsis}.quote-price input,.qty-input,.desc-input,.baseline-input{border:1px solid transparent;border-radius:4px;background:transparent;font:inherit;color:inherit;padding:4px;width:80px}.quote-price input:hover,.qty-input:hover,.desc-input:hover,.baseline-input:hover{border-color:#d5e3d9;background:#fff}.quote-price input:focus,.qty-input:focus,.desc-input:focus,.baseline-input:focus{outline:2px solid #8ac9a3;background:white}.desc-input{width:100%;min-width:190px;font-weight:700}.qty-input{width:52px}.baseline-input{width:75px}.best-cell{font-weight:800;color:#1a7856;white-space:nowrap}.flag{display:inline-block;padding:4px 7px;border-radius:4px;font-size:9px;font-weight:700;white-space:nowrap}.flag.ok{background:#e7f5eb;color:#2f8a5c}.flag.review{background:#fff2d9;color:#ad7625}.flag.missing{background:#fceceb;color:#ba6459}footer{text-align:center;color:#a3b1a7;font-size:10px;padding:27px 0 0}@media(max-width:1050px){.sidebar{width:68px;padding:26px 10px}.brand{font-size:0;padding:0 7px}.workspace-label,.side-bottom,.sidebar nav span{display:none}nav{margin-top:70px}nav a{font-size:18px;justify-content:center;padding:10px}.content{padding:35px 24px}.topbar{padding:0 24px}.summary-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:750px){.main-grid{grid-template-columns:1fr}.title-row{align-items:flex-start;flex-direction:column}.summary-grid{gap:9px}.summary-card{padding:15px}.comparison-heading{align-items:flex-start;flex-direction:column}.autosave{display:none}}@media(max-width:520px){.sidebar{display:none}.content{padding:25px 14px}.topbar{padding:0 14px}.summary-grid{grid-template-columns:repeat(2,1fr)}h1{font-size:27px}.saved-pill{display:none}}
+.financial-panel{margin-top:20px}.financial-panel td{white-space:nowrap}.financial-panel td:first-child{min-width:130px}.financial-panel input{border:1px solid #dae5dd;border-radius:5px;padding:6px;width:90px;color:#2b4738;font:600 11px 'DM Sans',sans-serif}.financial-panel input:focus{outline:2px solid #91c9a8}.financial-panel .total-evaluated{font-weight:800;color:#176f59}.financial-panel .incomplete{color:#a3783d}.match-btn{padding:3px 6px;margin-left:7px;font-size:9px}
+.workspace-view[hidden]{display:none!important}.workspace-view{animation:view-in .18s ease-out}@keyframes view-in{from{opacity:.65;transform:translateY(4px)}to{opacity:1;transform:none}}.view-intro{margin:27px 0 18px}.view-intro h2{font-size:20px;margin:7px 0 4px}.view-intro p{font-size:12px;color:#8da197;margin:0}.quote-detail-card{margin-bottom:18px;overflow:hidden}.quote-detail-head{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:22px 23px 15px}.quote-detail-head h2{font-size:17px;margin:5px 0}.quote-detail-head p{margin:0;font-size:11px;color:#90a198}.quote-compare-link{text-decoration:none;white-space:nowrap}.quote-meta{display:flex;gap:27px;flex-wrap:wrap;padding:0 23px 17px}.quote-meta div,.quote-totals div{display:flex;flex-direction:column;gap:4px}.quote-meta span,.quote-totals span{font-size:10px;color:#94a69a}.quote-meta strong{font-size:11px;color:#40574a}.quote-totals{display:flex;gap:35px;flex-wrap:wrap;background:#f6faf6;padding:15px 23px;border-top:1px solid #ebf0eb}.quote-totals strong{font-size:13px}.quote-empty{padding:55px 20px;text-align:center;color:#8ea298}.source-table{min-width:850px}.source-table th,.source-table td{padding:12px 16px}.source-table td{vertical-align:top}.source-table td:nth-child(2){min-width:260px;max-width:440px}.source-table .source-description{line-height:1.5}.source-file{word-break:break-word}.matrix-table{width:max-content;min-width:100%}.matrix-table td,.matrix-table th{vertical-align:top}.matrix-table .item-head,.matrix-table .item-cell{position:sticky;left:0;background:#fff;z-index:2;min-width:235px;max-width:275px;box-shadow:3px 0 5px #17352f08}.matrix-table .item-head{background:#f5f8f5;z-index:3}.matrix-table .supplier-head{min-width:245px;max-width:285px;background:#eef6f0;color:#275943;white-space:normal}.supplier-head strong,.supplier-head small{display:block}.supplier-head strong{font-size:11px;letter-spacing:0}.supplier-head small{color:#8ca397;margin-top:5px;font-size:9px;letter-spacing:0;font-weight:500}.matrix-table .supplier-cell{min-width:245px;max-width:285px;background:#fff}.matrix-table .supplier-best{background:#f5fbf5}.matched-line{min-height:66px;line-height:1.35}.matched-line strong{white-space:normal}.matched-line small{white-space:normal}.unmatched-line{min-height:66px;color:#ba7068;font-size:11px}.supplier-pricing{border-top:1px solid #e9f0e9;padding-top:9px}.supplier-pricing label{display:flex;align-items:center;gap:4px;font-size:10px;color:#859588}.supplier-pricing input{border:1px solid #d7e5d9;border-radius:4px;background:white;padding:4px;width:84px;font:600 11px 'DM Sans',sans-serif;color:#234e37}.supplier-pricing input:focus{outline:2px solid #8ac9a3}.supplier-pricing div{display:flex;justify-content:space-between;margin-top:7px;color:#82958a;font-size:10px}.supplier-pricing div strong{color:#315747;font-size:11px}.matrix-table .best-cell{min-width:120px}.matrix-table td:last-child{min-width:115px}.matrix-table .qty-input{width:61px}.matrix-table .desc-input{white-space:normal}.matrix-table .item-cell small{white-space:normal}@media(max-width:750px){.quote-totals{gap:18px}.quote-meta{gap:15px}.matrix-table .item-head,.matrix-table .item-cell{min-width:180px;max-width:210px}}
+.matrix-table th,.matrix-table td{padding:13px 12px}.matrix-table .item-head,.matrix-table .item-cell{min-width:210px;max-width:240px}.matrix-table .supplier-head,.matrix-table .supplier-cell{min-width:220px;max-width:250px}.matrix-table th:nth-child(2),.matrix-table td:nth-child(2){min-width:86px}.matrix-table th:nth-child(3),.matrix-table td:nth-child(3){min-width:100px}.matrix-table .best-cell{min-width:110px}.matrix-table td:last-child{min-width:105px}
+@media(max-width:520px){.shell{display:block}.sidebar{display:flex;width:100%;padding:8px 10px}.sidebar .brand{display:none}.sidebar nav{display:flex;margin:0;width:100%;gap:4px}.sidebar nav a{flex:1;display:flex;justify-content:center;gap:5px;font-size:12px;padding:10px 4px}.sidebar nav span{display:inline}.sidebar .workspace-label,.sidebar .side-bottom{display:none}}
+.quote-raw{border-top:1px solid #e8efe9;padding:13px 22px}.quote-raw summary{cursor:pointer;color:#2b7258;font-size:11px;font-weight:700}.quote-raw pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:350px;overflow:auto;background:#f7faf8;padding:15px;border-radius:6px;font-size:10px;line-height:1.5;color:#566d5f}
+.pdf-preview-dialog{width:min(1500px,96vw);height:min(950px,94vh);max-width:none;max-height:none;margin:auto;padding:0;border:1px solid #dce7df;border-radius:12px;box-shadow:0 20px 70px #0d281e55;color:var(--ink);background:#fff}.pdf-preview-dialog::backdrop{background:#112a22aa}.pdf-preview-shell{height:100%;display:flex;flex-direction:column}.pdf-preview-toolbar{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:17px 22px;border-bottom:1px solid #dde8e0}.pdf-preview-toolbar h2{font-size:18px;margin:4px 0}.pdf-preview-toolbar p{font-size:11px;color:#82948a;margin:0}.pdf-preview-actions{display:flex;gap:8px;align-items:center}.pdf-preview-actions a{text-decoration:none;white-space:nowrap}.pdf-preview-actions button{box-shadow:none}.pdf-preview-split{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(390px,.9fr)}.pdf-preview-document,.pdf-preview-extracted{min-width:0;min-height:0;display:flex;flex-direction:column}.pdf-preview-document{border-right:1px solid #dce7df;background:#e9eeeb}.pane-heading{display:flex;justify-content:space-between;gap:10px;padding:10px 15px;background:#f4f8f5;color:#597367;font-size:10px;font-weight:800;letter-spacing:1px}.pane-heading span{font-weight:400;letter-spacing:0;color:#8ea198}.pdf-preview-document iframe{width:100%;height:100%;border:0;background:#e9eeeb}.pdf-preview-summary{display:flex;flex-wrap:wrap;gap:12px 20px;padding:13px 15px;border-bottom:1px solid #edf1ed}.pdf-preview-summary span{display:flex;flex-direction:column;gap:4px;color:#91a195;font-size:10px}.pdf-preview-summary strong{font-size:11px;color:#254e3d}.preview-lines-scroll{overflow:auto;flex:1}.preview-lines-table{min-width:610px}.preview-lines-table th,.preview-lines-table td{padding:11px 10px;vertical-align:top}.preview-lines-table td:first-child{min-width:220px;max-width:290px}.preview-lines-table td small{display:block;color:#8d9f93;margin-top:3px;line-height:1.35}.preview-help{padding:10px 15px;margin:0;border-top:1px solid #edf1ed;color:#83978b;font-size:10px}.preview-trigger{white-space:nowrap}.quote-detail-head .pdf-preview-actions{margin-left:auto}@media(max-width:850px){.pdf-preview-dialog{width:98vw;height:97vh}.pdf-preview-split{display:flex;flex-direction:column}.pdf-preview-document{height:50%;border-right:0;border-bottom:1px solid #dce7df}.pdf-preview-extracted{height:50%}.pdf-preview-toolbar{padding:10px}.pdf-preview-toolbar p{display:none}.pdf-preview-actions{gap:4px}.pdf-preview-actions a,.pdf-preview-actions button{font-size:10px;padding:8px}}
+.preview-mini{display:block;margin-top:8px;padding:4px 6px;border:1px solid #b9d7c3;border-radius:4px;background:#fff;color:#286d4e;cursor:pointer;font:700 9px 'DM Sans',sans-serif;letter-spacing:0}.preview-mini:hover,.preview-trigger:hover{background:#e8f5eb}
+.pdf-preview-pages{flex:1;min-height:0;overflow:auto;padding:16px;background:#dce4df;color:#456556;text-align:center;font-size:12px}.pdf-rendered-page{width:max-content;max-width:100%;margin:0 auto 16px;background:#fff;box-shadow:0 2px 10px #17352f33}.pdf-rendered-page canvas{display:block;max-width:100%;height:auto!important}.pdf-preview-document iframe[hidden],.pdf-preview-pages[hidden]{display:none}
+.pdf-preview-split{grid-template-columns:minmax(0,.9fr) minmax(500px,1.1fr)}.pdf-preview-extracted .pane-heading{align-items:center}.pdf-preview-extracted .pane-heading button{letter-spacing:0;color:#246e50}.preview-lines-table{min-width:720px}.preview-lines-table th,.preview-lines-table td{padding:9px 7px}.preview-lines-table td:first-child{min-width:205px;max-width:230px}.preview-lines-table td:nth-child(2){min-width:82px}.preview-lines-table td:nth-child(3),.preview-lines-table td:nth-child(4){min-width:96px}.preview-lines-table td:nth-child(5){min-width:85px}.preview-lines-table td:last-child{min-width:69px}.preview-field-label{display:block;font-size:9px;font-weight:700;color:#7f9386;margin-bottom:7px}.preview-field-label input,.preview-field-label textarea{display:block;width:100%;margin-top:3px;border:1px solid #cfddd3;border-radius:4px;background:#fff;padding:5px 6px;color:#233a2c;font:500 11px 'DM Sans',sans-serif;resize:vertical}.preview-field-label input:focus,.preview-field-label textarea:focus{outline:2px solid #8ac9a3}.preview-source{font-size:10px;line-height:1.4;color:#7a9181}.preview-source small{color:#2a7855;font-weight:700}.preview-remove,.preview-save{border:1px solid #dfbfb8;border-radius:4px;background:#fff;color:#a65449;padding:5px 7px;cursor:pointer;font-size:10px;margin-bottom:5px}.preview-save{background:#24785b;border-color:#24785b;color:#fff}.preview-draft{background:#f2faf3}.preview-empty td{text-align:center;color:#7b9181;padding:25px}@media(max-width:850px){.pdf-preview-split{display:flex;flex-direction:column}}
+.verify-price{display:inline-block;border:1px solid #d5bfa1;border-radius:5px;background:#fff9ef;color:#926c37;padding:5px 7px;font:700 10px 'DM Sans',sans-serif;white-space:nowrap;cursor:pointer}.verify-price:hover{background:#fff0d5}.verify-price.is-verified{border-color:#9bcdb1;background:#e8f6ed;color:#197052}.verify-price.is-verified:hover{background:#d9efdf}.matched-line .verify-price{margin:7px 0 9px}.preview-lines-table .verify-price{margin:0 0 5px}.source-table td:last-child{min-width:110px}
+
+</style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">≡</span><span>Quote<span class="brand-light">Line</span></span></div>
+      <div class="workspace-label">WORKSPACE</div>
+      <nav aria-label="Workspace pages"><a class="active" href="#overview" data-view="overview">▦ <span>Overview</span></a><a href="#quotes" data-view="quotes">▤ <span>Quotes</span></a><a href="#comparison" data-view="comparison">⇄ <span>Comparison</span></a></nav>
+      <div class="side-bottom"><div class="side-note"><span class="tiny-dot"></span> Local workspace<br><small>Files are processed on this machine.</small></div><div class="avatar">QL</div><span class="side-user">Comparison tool<small>Project workspace</small></span></div>
+    </aside>
+    <main>
+      <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <strong>Quote comparison</strong></div><div class="top-right"><span class="saved-pill">● &nbsp; Local session</span><span class="circle-icon">?</span></div></header>
+      <div class="content" id="workspaceContent">
+        <div class="eyebrow">PROCUREMENT WORKSPACE <span class="slash">/</span> COMPARISON</div>
+        <div class="title-row"><div><h1 id="pageTitle">Quote comparison</h1><p class="subtitle" id="pageSubtitle">Bring every supplier onto the same page. Find the best price, line by line.</p></div><button class="export-btn" id="exportBtn" disabled>↧ &nbsp; Export comparison</button></div>
+        <div class="project-line"><label for="project">Project</label><input id="project" placeholder="Enter project name" value="New comparison"><span class="autosave">Session only · export to keep a copy</span></div>
+
+        <section class="workspace-view" id="overview" aria-label="Overview">
+        <section class="summary-grid" aria-label="Summary">
+          <div class="summary-card"><span class="summary-icon green">▤</span><div class="summary-label">Quotes received</div><div class="summary-value" id="quoteCount">0</div><div class="summary-foot">Supplier & subcontractor quotes</div></div>
+          <div class="summary-card"><span class="summary-icon blue">▦</span><div class="summary-label">Items compared</div><div class="summary-value" id="itemCount">0</div><div class="summary-foot">Across all uploaded files</div></div>
+          <div class="summary-card"><span class="summary-icon amber">◈</span><div class="summary-label">Lowest complete quote</div><div class="summary-value compact" id="bestQuote">—</div><div class="summary-foot" id="bestQuoteFoot">Upload quotes to see results</div></div>
+          <div class="summary-card"><span class="summary-icon violet">!</span><div class="summary-label">Needs review</div><div class="summary-value" id="reviewCount">0</div><div class="summary-foot">Missing or uncertain matches</div></div>
+        </section>
+
+        <div class="main-grid"><section class="panel upload-panel"><div class="panel-heading"><div><h2>Import quotes</h2><p>Add supplier quotes, subcontractor quotes or your baseline sheet.</p></div><span class="step">01 / IMPORT</span></div><div class="dropzone" id="dropzone" tabindex="0" role="button"><input id="fileInput" type="file" multiple accept=".xlsx,.csv,.pdf,.docx,.txt" hidden><div class="upload-icon">↥</div><strong>Drop quote files here</strong><span>or <u>browse files</u> from your computer</span><small>XLSX, CSV, text PDF, DOCX or TXT · up to 20 MB per upload</small></div><div class="upload-footer"><span>ⓘ</span> Scanned image PDFs need OCR before import. Check extracted rows before relying on totals.</div></section>
+        <section class="panel files-panel"><div class="panel-heading"><div><h2>Imported files</h2><p>Your source documents and detected line items.</p></div><span class="file-count" id="fileCount">0 files</span></div><div id="fileList" class="file-list"><div class="empty-files"><div class="empty-icon">▤</div><strong>No files yet</strong><span>Your uploaded quotes will appear here.</span></div></div></section></div>
+        </section>
+
+        <section class="workspace-view" id="quotes" aria-label="Quotes" hidden>
+          <div class="view-intro"><div class="heading-eyebrow">02 / SOURCE QUOTES</div><h2>Standardized quote details</h2><p>Every imported line is shown under its supplier. Check its price against the source, then use Verify price to record that check.</p></div>
+          <div id="quoteDetails"><div class="panel quote-empty">Upload quotes on Overview to see each supplier’s full line list here.</div></div>
+        </section>
+
+        <section class="workspace-view" id="comparison" aria-label="Comparison" hidden>
+        <section class="panel comparison-panel"><div class="panel-heading comparison-heading"><div><div class="heading-eyebrow">03 / ANALYSE</div><h2>Item-by-item comparison</h2><p>Items run down the page; each supplier shows its matched line and price. Verify price records your source check separately from the item match.</p></div><div class="table-actions"><button class="subtle-btn" id="addRowBtn">+ Add line</button><button class="subtle-btn" id="addQuoteBtn">+ Add quote</button></div></div><div class="notice" id="coverageNotice" hidden></div><div class="table-scroll"><table id="comparisonTable" class="matrix-table"><thead><tr><th>ITEM / DESCRIPTION</th><th>REQ. QTY</th><th>BASELINE</th><th>SUPPLIER QUOTES</th><th>LOWEST</th><th>FLAG</th></tr></thead><tbody><tr class="placeholder-row"><td colspan="6"><div class="table-empty">Upload two or more quotes to compare pricing across suppliers.<small>You can also add rows and quotes manually.</small></div></td></tr></tbody></table></div></section>
+        <section class="panel financial-panel"><div class="panel-heading"><div><div class="heading-eyebrow">03 / EVALUATE</div><h2>Financial summary</h2><p>Compare ex-GST lines on the same basis, then include freight, tax and discounts. Check the evaluated total against the quote.</p></div></div><div class="table-scroll"><table id="financialTable"><thead><tr><th>SUPPLIER</th><th>LINE COVERAGE</th><th>LINE COST</th><th>FREIGHT</th><th>TAX / GST</th><th>DISCOUNT</th><th>TOTAL EVALUATED</th><th>QUOTED TOTAL</th><th>GAP TO LOWEST</th></tr></thead><tbody><tr><td colspan="9" class="table-empty">Add quotes to see the financial summary.</td></tr></tbody></table></div></section>
+        </section>
+        <footer>QuoteLine compares extracted line items. Confirm scope, inclusions, taxes and freight before awarding work.</footer>
+      </div>
+    </main>
+  </div>
+  <dialog id="pdfPreviewDialog" class="pdf-preview-dialog" aria-labelledby="pdfPreviewTitle">
+    <div class="pdf-preview-shell">
+      <div class="pdf-preview-toolbar"><div><span class="heading-eyebrow">SOURCE DOCUMENT / CROSS-CHECK</span><h2 id="pdfPreviewTitle">Original supplier PDF</h2><p id="pdfPreviewSubtitle">Compare the source PDF with the extracted lines.</p></div><div class="pdf-preview-actions"><a id="pdfOpenLink" class="subtle-btn" target="_blank" rel="noopener noreferrer">Open PDF in new tab ↗</a><button id="pdfPreviewClose" class="export-btn" type="button">Close</button></div></div>
+      <div class="pdf-preview-split"><div class="pdf-preview-document"><div class="pane-heading">ORIGINAL PDF <span>Scroll through the uploaded pages</span></div><div id="pdfPreviewPages" class="pdf-preview-pages" role="region" aria-label="Original supplier PDF pages"></div><iframe id="pdfPreviewFrame" title="Original supplier PDF" src="about:blank" hidden></iframe></div><div class="pdf-preview-extracted"><div class="pane-heading">EXTRACTED QUOTE <button id="pdfAddLine" class="subtle-btn" type="button">+ Add line</button></div><div id="pdfPreviewSummary" class="pdf-preview-summary"></div><div class="preview-lines-scroll"><table class="preview-lines-table"><thead><tr><th>CODE & DESCRIPTION</th><th>QTY / UNIT</th><th>UNIT PRICE</th><th>LINE TOTAL</th><th>SOURCE</th><th>CHECK / ACTION</th></tr></thead><tbody id="pdfPreviewLines"></tbody></table></div><p class="preview-help">Verify price after checking it against the PDF. Editing a line clears its verification. Changes update the comparison and export.</p></div></div>
+    </div>
+  </dialog>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" integrity="sha256-yVBhl8r4CaB1tt7h2g02+xnacVj/6KiOewyWxdhiPJk=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.min.js" integrity="sha256-H8KU7v2mAuWRoGwdWvNhyuI3VrWjNPwkIdX5rMzgOOU=" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/mammoth@1.11.0/mammoth.browser.min.js" integrity="sha256-Ync9OyHHEwNCFI54q/e5fb0xA0Y9P/xaaGAaKgB+HPE=" crossorigin="anonymous"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.worker.min.js';</script>
+<script>
+/* In-browser API for the downloadable, server-free QuoteLine HTML. */
+(() => {
+  const originalFetch = window.fetch.bind(window);
+  const nameMap = {
+    description:['description','item description','product','material','item','details','scope','work description'],
+    code:['code','sku','product code','item code','part number','part no','ref','reference'],
+    qty:['qty','quantity','units'], unit:['unit','uom','measure'],
+    unit_price:['unit price','unit rate','rate','price each','each','unit cost','price'],
+    total:['line total','amount','extended price','total','value']
+  };
+  const clean = x => String(x ?? '').replace(/\s+/g,' ').trim();
+  const number = x => {
+    if (typeof x === 'number') return Number.isFinite(x) ? Math.round(x*100)/100 : null;
+    const s=clean(x).replace(/[$£€,]/g,'').replace(/^\((.*)\)$/,'-$1');
+    return /^-?\d+(\.\d+)?$/.test(s) ? Math.round(Number(s)*100)/100 : null;
+  };
+  const norm = x => clean(x).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+  const totalWord = /^(sub\s*total|total|gst|vat|tax|freight|delivery|shipping|discount|deposit|balance|page\s+\d+)/i;
+  function item(description,qty,unitPrice,total,code='',unit='ea',source='') {
+    description=clean(description);if(!description||totalWord.test(description))return null;
+    qty=number(qty);unitPrice=number(unitPrice);total=number(total);
+    if(qty==null||qty<=0)qty=(unitPrice!=null||total!=null)?1:null;
+    if(qty==null)return null;
+    if(unitPrice==null&&total!=null)unitPrice=Math.round(total/qty*100)/100;
+    if(unitPrice==null||unitPrice<0)return null;
+    code=clean(code).toUpperCase();
+    if(!code){const match=description.match(/\b(?=[A-Z0-9-]{4,}\b)(?=[A-Z0-9-]*\d)[A-Z][A-Z0-9-]*\b/i);code=match?match[0].toUpperCase():''}
+    return {description,code,qty,unit:clean(unit)||'ea',unit_price:unitPrice,total:Math.round(qty*unitPrice*100)/100,source,price_warning:total!=null&&Math.abs(total-qty*unitPrice)>0.02};
+  }
+  function headerMap(cells){
+    const lower=cells.map(x=>norm(x));const result={};
+    for(const [field,names] of Object.entries(nameMap)){
+      const i=lower.findIndex(x=>names.includes(x));if(i>=0)result[field]=i;
+    }
+    return result.description!=null&&(result.unit_price!=null||result.total!=null)?result:null;
+  }
+  function rowsToItems(rows,source){
+    let header=null,start=0;
+    for(let i=0;i<Math.min(30,rows.length);i++){header=headerMap(rows[i]);if(header){start=i+1;break}}
+    if(!header)return [];
+    const out=[];
+    for(let i=start;i<rows.length;i++){
+      const v=k=>header[k]==null?'':rows[i][header[k]];
+      const entry=item(v('description'),v('qty'),v('unit_price'),v('total'),v('code'),v('unit'),`${source} row ${i+1}`);
+      if(entry)out.push(entry);
+    }
+    return out;
+  }
+  function textItems(text,source){
+    const out=[];
+    text.split(/\r?\n/).forEach((raw,i)=>{
+      const line=clean(raw);if(!line||totalWord.test(line))return;
+      const parts=raw.split(/\t|\s{2,}|\s*\|\s*/).map(clean).filter(Boolean);
+      if(parts.length<3)return;
+      const last=number(parts.at(-1)),prev=number(parts.at(-2)),qty=number(parts.at(-3));
+      if(last==null||prev==null)return;
+      let entry;
+      if(parts.length>=4&&qty!=null)entry=item(parts.slice(0,-3).join(' '),qty,prev,last,'','ea',`${source} line ${i+1}`);
+      else entry=item(parts.slice(0,-2).join(' '),prev,null,last,'','ea',`${source} line ${i+1}`);
+      if(entry&&!entry.price_warning)out.push(entry);
+    });
+    return out;
+  }
+  function sheetRows(sheet){return XLSX.utils.sheet_to_json(sheet,{header:1,defval:'',raw:true});}
+  function parsePdfLines(lines){
+    const all=lines.join('\n'),meta={raw_text:all};let items=[];
+    const amount='([\\d,]+(?:\\.\\d{1,2})?)';
+    if(all.includes('Product No.')&&all.includes('GST Inc Total')&&/BENTONS/i.test(all)){
+      for(const [key,pattern] of Object.entries({quote_number:/Quote No\s+(\d+)/i,quote_date:/Quote Date\s+(\d{1,2}\/\d{1,2}\/\d{2,4})/i,expiry_date:/Expiry Date\s+(\d{1,2}\/\d{1,2}\/\d{2,4})/i})){
+        const found=all.match(pattern);if(found)meta[key]=found[1];
+      }
+      const product=new RegExp('^\\s*(BB\\d+)\\s+(.+?)\\s+(EA|EACH|PC|PCS)\\s+'+amount+'\\s+'+amount+'\\s+'+amount+'\\s+'+amount+'\\s*$','i');
+      lines.forEach((line,i)=>{
+        const m=line.match(product);
+        if(m){const entry=item(m[2],m[4],m[5],null,m[1],m[3],`PDF line ${i+1}`);if(entry){
+          const details=[];for(const next of lines.slice(i+1)){const value=clean(next);if(/^\$[\d,.]+$/.test(value)||/^BB\d+/i.test(value)||value.startsWith('*Quotes'))break;if(value&&!['SNK1','TA1'].includes(value))details.push(value)}
+          entry.full_description=[m[2],...details].join(' ');entry.inc_gst_unit=number(m[6]);entry.inc_gst_total=number(m[7]);items.push(entry)}}
+        const gst=line.match(new RegExp('\\bGST\\s+(?!Ex|Inc).*?\\$'+amount,'i'));
+        const total=line.match(new RegExp('GST Inc Total\\s+\\$'+amount,'i'));
+        if(gst)meta.tax=number(gst[1]);if(total)meta.quoted_total=number(total[1]);
+      });
+      return {items,meta:{...meta,name:"Benton's",price_basis:'ex GST'}};
+    }
+    if(all.includes('Reece Australia Pty Ltd')&&all.includes('Document Total')){
+      for(const [key,pattern] of Object.entries({quote_number:/Quote No\.\s+(\d+)/i,quote_date:/\bDate\s+(\d{1,2}\/\d{1,2}\/\d{2,4})/i,expiry_date:/Quote Expiry Date:\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/i})){
+        const found=all.match(pattern);if(found)meta[key]=found[1];
+      }
+      const product=new RegExp('^\\s*\\d+\\s+\\d+\\s+([A-Za-z0-9]+)\\s+-?\\s*(.+?)\\s+'+amount+'\\s+'+amount+'\\s+(EA|EACH|PC|PCS)\\s+'+amount+'\\s+'+amount+'\\s+'+amount+'\\s*$','i');
+      const freight=new RegExp('Delivery Fee -.+?\\s+'+amount+'\\s+'+amount+'\\s+EA\\s+'+amount+'\\s+'+amount+'\\s+'+amount,'i');
+      const total=new RegExp('Document Total\\s+'+amount+'\\s+'+amount+'\\s+'+amount,'i');
+      lines.forEach((line,i)=>{
+        const m=line.match(product);
+        if(m){const entry=item(m[2],m[3],m[4],m[6],m[1],m[5],`PDF line ${i+1}`);if(entry){
+          const details=[];for(const next of lines.slice(i+1)){const value=clean(next);if(value.startsWith('*')||/^\d+\s+/.test(value)||value.includes('Delivery Fee'))break;if(value)details.push(value)}
+          entry.full_description=[m[2],...details].join(' ');entry.inc_gst_total=number(m[8]);items.push(entry)}}
+        const ship=line.match(freight);if(ship)meta.freight=number(ship[3]);
+        const sum=line.match(total);if(sum){meta.tax=number(sum[2]);meta.quoted_total=number(sum[3])}
+      });
+      return {items,meta:{...meta,name:'Reece',price_basis:'ex GST'}};
+    }
+    return {items:textItems(all,'PDF'),meta};
+  }
+  async function parseFile(file){
+    const ext=file.name.split('.').pop().toLowerCase();let items=[],kind='quote',meta={};
+    if(ext==='xlsx'||ext==='csv'){
+      const bytes=new Uint8Array(await file.arrayBuffer());
+      if(ext==='csv')meta.raw_text=new TextDecoder().decode(bytes);
+      const book=XLSX.read(bytes,{type:'array'});
+      if(ext==='xlsx'&&book.SheetNames.includes('Supplier Comparison Sheet')){
+        kind='baseline';const rows=sheetRows(book.Sheets['Supplier Comparison Sheet']);
+        rows.slice(6).forEach((row,i)=>{const entry=item(row[0],row[1],row[2],null,'','ea',`Supplier Comparison Sheet row ${i+7}`);if(entry)items.push(entry)});
+      } else {
+        for(const name of book.SheetNames){items=rowsToItems(sheetRows(book.Sheets[name]),name);if(items.length)break}
+      }
+    } else if(ext==='pdf'){
+      const bytes=new Uint8Array(await file.arrayBuffer());
+      const pdf=await pdfjsLib.getDocument({data:bytes}).promise;
+      let lines=[];
+      for(let p=1;p<=pdf.numPages;p++){
+        const page=await pdf.getPage(p),content=await page.getTextContent(),groups=[];
+        for(const span of content.items){
+          const y=span.transform?.[5] ?? 0,x=span.transform?.[4] ?? 0;
+          let group=groups.find(g=>Math.abs(g.y-y)<2);
+          if(!group){group={y,parts:[]};groups.push(group)}
+          group.parts.push({x,text:span.str});
+        }
+        groups.sort((a,b)=>b.y-a.y);
+        lines.push(...groups.map(g=>g.parts.sort((a,b)=>a.x-b.x).map(x=>x.text).join('  ')));
+      }
+      ({items,meta}=parsePdfLines(lines));
+    } else if(ext==='docx'){
+      const buffer=await file.arrayBuffer();
+      const html=await mammoth.convertToHtml({arrayBuffer:buffer});
+      const doc=new DOMParser().parseFromString(html.value,'text/html');
+      for(const table of doc.querySelectorAll('table')){
+        const rows=[...table.querySelectorAll('tr')].map(tr=>[...tr.querySelectorAll('th,td')].map(cell=>cell.textContent));
+        items=rowsToItems(rows,'Word table');if(items.length)break;
+      }
+      const result=await mammoth.extractRawText({arrayBuffer:buffer});meta.raw_text=result.value;
+      if(!items.length)items=textItems(result.value,'Word');
+    } else if(ext==='txt'){meta.raw_text=await file.text();items=textItems(meta.raw_text,'Text')}
+    else throw Error('Supported files: XLSX, CSV, PDF, DOCX, TXT');
+    return {name:meta.name||file.name.replace(/\.[^.]+$/,''),kind,items,...meta,warning:items.length?null:'No priced line items found. Check the source layout or enter rows manually.'};
+  }
+  function similarity(a,b){
+    if(a.code&&b.code&&norm(a.code)===norm(b.code))return 1;
+    const x=norm(a.description),y=norm(b.description);if(!x||!y)return 0;
+    const stop=new Set(['the','with','and','for','ea','each','sink','bowl','w','xl']);
+    const sx=new Set(x.split(' ').filter(t=>!stop.has(t))),sy=new Set(y.split(' ').filter(t=>!stop.has(t)));
+    const shared=[...sx].filter(t=>sy.has(t));if(shared.length<2)return 0;
+    const overlap=shared.length/Math.max(1,Math.min(sx.size,sy.size));
+    const grams=s=>{let out=[];for(let i=0;i<s.length-1;i++)out.push(s.slice(i,i+2));return out};
+    const gx=grams(x),gy=grams(y);let hits=0,copy=[...gy];
+    for(const gram of gx){const i=copy.indexOf(gram);if(i>=0){hits++;copy.splice(i,1)}}
+    const dice=2*hits/Math.max(1,gx.length+gy.length);
+    return 0.65*overlap+0.35*dice;
+  }
+  function buildGroups(quotes,baseline){
+    const groups=baseline.map(e=>({description:e.description,code:e.code,qty:e.qty,unit:e.unit,baseline_price:e.unit_price,matches:{},confidence:'baseline'}));
+    quotes.forEach((q,qi)=>q.items.forEach(entry=>{
+      let best=-1,score=0;
+      groups.forEach((group,gi)=>{if(group.matches[qi])return;const s=similarity(entry,group);if(s>score){score=s;best=gi}});
+      if(score>=0.70){const group=groups[best];group.matches[qi]=entry;if(score<0.93)group.confidence='review';else if(['new','unmatched'].includes(group.confidence))group.confidence='matched'}
+      else groups.push({description:entry.description,code:entry.code,qty:entry.qty,unit:entry.unit,baseline_price:null,matches:{[qi]:entry},confidence:qi?'unmatched':'new'});
+    }));
+    return groups;
+  }
+  function compare(quotes,groups){
+    const names=quotes.map(q=>q.name),totals=quotes.map(()=>0),covered=quotes.map(()=>0);
+    const rows=groups.map(group=>{
+      const qty=number(group.qty)||1;
+      const prices=quotes.map((q,i)=>{const value=Number(group.matches?.[i]?.unit_price);return group.matches?.[i]&&Number.isFinite(value)&&value>=0?Math.round(value*1e6)/1e6:null});
+      const available=prices.filter(p=>p!=null),best=available.length?Math.min(...available):null;
+      const values=prices.map(p=>p==null?null:Math.round(qty*p*100)/100);
+      values.forEach((v,i)=>{if(v!=null){totals[i]+=v;covered[i]++}});
+      return {...group,prices,values,best,winners:names.filter((_,i)=>prices[i]!=null&&prices[i]===best),spread:available.length>1?Math.round((Math.max(...available)-best)*qty*100)/100:null,baseline_total:group.baseline_price!=null?Math.round(qty*group.baseline_price*100)/100:null};
+    });
+    const complete=covered.map(n=>n===rows.length);
+    const landed=quotes.map((q,i)=>Math.round((totals[i]+(number(q.freight)||0)+(number(q.tax)||0)-(number(q.discount)||0))*100)/100);
+    return {rows,names,totals:totals.map(x=>Math.round(x*100)/100),landed,covered,complete,row_count:rows.length};
+  }
+  function exportBook(data){
+    const quotes=data.quotes||[],report=compare(quotes,data.groups||[]),book=XLSX.utils.book_new();
+    const completeTotals=report.landed.filter((_,i)=>report.complete[i]);
+    const lowest=completeTotals.length?Math.min(...completeTotals):null;
+    const summary=[['Project',clean(data.project)],['Quoted line costs use required quantities. Check tax, freight and discounts against quote terms.'],['Supplier','Price basis','Lines covered','Complete?','Line cost','Freight','Tax / GST','Discount','Total evaluated','Quoted total','Variance to quote','Gap to lowest complete']];
+    quotes.forEach((q,i)=>summary.push([q.name,q.price_basis||'unspecified',`${report.covered[i]}/${report.row_count}`,report.complete[i]?'Yes':'No',report.totals[i],number(q.freight)||0,number(q.tax)||0,number(q.discount)||0,report.landed[i],q.quoted_total??null,q.quoted_total!=null?Math.round((report.landed[i]-q.quoted_total)*100)/100:null,report.complete[i]&&lowest!=null?Math.round((report.landed[i]-lowest)*100)/100:null]));
+    const s=XLSX.utils.aoa_to_sheet(summary);s['!cols']=[{wch:28},...Array.from({length:11},()=>({wch:19}))];XLSX.utils.book_append_sheet(book,s,'Financial summary');
+    const header=['Code','Description','Required Qty','Unit','Baseline Unit','Baseline Total'];
+    quotes.forEach(q=>header.push(`${q.name} Quoted Code`,`${q.name} Quoted Description`,`${q.name} Quoted Qty`,`${q.name} Quoted Unit`,`${q.name} Unit Price`,`${q.name} At Required Qty`,`${q.name} Source`,`${q.name} Price Verified`));
+    header.push('Lowest Unit','Lowest Supplier','Price Spread at Required Qty','Review Flag');
+    const matrix=[['QUOTE COMPARISON'],['Project',clean(data.project)],['Missing lines are excluded from quote totals.'],header];
+    report.rows.forEach(row=>{
+      const values=[row.code,row.description,row.qty,row.unit,row.baseline_price,row.baseline_total];
+      quotes.forEach((q,qi)=>{const e=row.matches?.[qi];values.push(e?.code||null,e?.full_description||e?.description||null,e?.qty??null,e?.unit||null,row.prices[qi],row.values[qi],e?.source||'MISSING',e?(e.price_verified?'Yes':'No'):null)});
+      values.push(row.best,row.winners.join(', '),row.spread,row.confidence);matrix.push(values);
+    });
+    matrix.push([],['QUOTE TOTALS','','','','','',...report.totals.flatMap(x=>['','','','','',x,'',''])],['LINES COVERED','','','','','',...report.covered.flatMap(x=>['','','','','',`${x}/${report.row_count}`,'',''])]);
+    const c=XLSX.utils.aoa_to_sheet(matrix);c['!cols']=header.map((title,i)=>({wch:i===1||title.includes('Description')?42:title.includes('Source')?24:17}));XLSX.utils.book_append_sheet(book,c,'Comparison');
+    const sources=[['Quote','Code','Description','Quoted Qty','Unit','Quoted Unit Price','Quoted Line Total','Source','Price Verified','Verified At (UTC)']];
+    quotes.forEach(q=>q.items.forEach(e=>sources.push([q.name,e.code,e.full_description||e.description,e.qty,e.unit,e.unit_price,e.total,e.source,e.price_verified?'Yes':'No',e.price_verified_at||null])));
+    const d=XLSX.utils.aoa_to_sheet(sources);d['!cols']=[{wch:24},{wch:18},{wch:52},...Array.from({length:4},()=>({wch:17})),{wch:30},{wch:17},{wch:25}];XLSX.utils.book_append_sheet(book,d,'Source lines');
+    return XLSX.write(book,{type:'array',bookType:'xlsx'});
+  }
+  const json=value=>new Response(JSON.stringify(value),{status:200,headers:{'Content-Type':'application/json'}});
+  window.fetch=async(input,init={})=>{
+    const path=typeof input==='string'?input:new URL(input.url).pathname;
+    if(path==='/api/import'){
+      const files=init.body.getAll('files');const out=[];
+      for(const file of files){try{out.push(await parseFile(file))}catch(err){out.push({name:file.name,kind:'error',items:[],warning:err.message})}}
+      return json(out);
+    }
+    if(path==='/api/compare'){
+      const data=JSON.parse(init.body);return json(compare(data.quotes||[],data.groups??buildGroups(data.quotes||[],data.baseline||[])));
+    }
+    if(path==='/api/export'){
+      const buffer=exportBook(JSON.parse(init.body));
+      return new Response(new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),{status:200});
+    }
+    return originalFetch(input,init);
+  };
+})();
+
+</script>
+<script>
+const state = { quotes: [], baseline: [], baselineName: '', groups: [], imported: [] };
+const $ = id => document.getElementById(id);
+const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const cash = value => value == null || value === '' ? '—' : new Intl.NumberFormat('en-AU',{style:'currency',currency:'AUD'}).format(Number(value));
+const num = value => Number.isFinite(Number(value)) ? Number(value) : null;
+let report = null;
+const previewUrls = new Map();
+let previewRender = 0;
+let previewQuoteId = null;
+const newId = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+const cents = value => Math.round(value * 100) / 100;
+const rate = value => Math.round(value * 1e6) / 1e6;
+const verifyButton = (quoteId, entry) => `<button type="button" class="verify-price ${entry.price_verified ? 'is-verified' : ''}" data-verify-quote="${esc(quoteId)}" data-verify-line="${esc(entry.line_id)}" aria-pressed="${entry.price_verified ? 'true' : 'false'}" title="${entry.price_verified ? 'Click to clear price verification' : 'Confirm this price against the source quote'}">${entry.price_verified ? '✓ Price verified' : 'Verify price'}</button>`;
+const pageCopy = {
+  overview: ['Quote comparison', 'Bring every supplier onto the same page. Find the best price, line by line.'],
+  quotes: ['Quotes', 'Review every supplier quote in one consistent format, including the source line behind each price.'],
+  comparison: ['Comparison', 'Compare the same item across supplier columns and see precisely which quote lines were matched.']
+};
+function showView(view) {
+  const selected = pageCopy[view] ? view : 'overview';
+  for (const name of Object.keys(pageCopy)) {
+    $(name).hidden = name !== selected;
+    document.querySelector(`nav [data-view="${name}"]`).classList.toggle('active', name === selected);
+  }
+  $('pageTitle').textContent = pageCopy[selected][0];
+  $('pageSubtitle').textContent = pageCopy[selected][1];
+  document.querySelector('.breadcrumb strong').textContent = pageCopy[selected][0];
+  window.scrollTo(0, 0);
+}
+window.addEventListener('hashchange', () => showView(location.hash.slice(1)));
+
+function renderQuoteDetails() {
+  const cards = [];
+  if (state.baseline.length) {
+    cards.push(`<section class="panel quote-detail-card"><div class="quote-detail-head"><div><span class="heading-eyebrow">BASELINE / TENDER</span><h2>${esc(state.baselineName || 'Baseline sheet')}</h2><p>Required quantities and tender unit prices from the baseline.</p></div><span class="file-count">${state.baseline.length} items</span></div><div class="table-scroll"><table class="source-table"><thead><tr><th>CODE</th><th>DESCRIPTION</th><th>QTY</th><th>UNIT</th><th>TENDER UNIT</th><th>TENDER TOTAL</th><th>SOURCE</th></tr></thead><tbody>${state.baseline.map(e=>`<tr><td>${esc(e.code)}</td><td><strong>${esc(e.description)}</strong></td><td>${esc(e.qty)}</td><td>${esc(e.unit)}</td><td>${cash(e.unit_price)}</td><td>${cash(e.total)}</td><td><small>${esc(e.source)}</small></td></tr>`).join('')}</tbody></table></div></section>`);
+  }
+  state.quotes.forEach((q,qi) => {
+    const file = state.imported.find(f=>f.id===q.id)?.name || 'Entered manually';
+    const lineCost = q.items.reduce((sum,e)=>sum+(Number(e.total)||0),0);
+    const metadata = [['Quote no.',q.quote_number],['Quote date',q.quote_date],['Expiry',q.expiry_date],['Price basis',q.price_basis]].filter(([,value])=>value&&value!=='unspecified');
+    cards.push(`<section class="panel quote-detail-card"><div class="quote-detail-head"><div><span class="heading-eyebrow">SUPPLIER ${qi+1} / SOURCE QUOTE</span><h2>${esc(q.name)}</h2><p class="source-file">${esc(file)}</p></div><a class="subtle-btn quote-compare-link" href="#comparison">View comparison →</a></div><div class="quote-meta">${metadata.map(([label,value])=>`<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join('')}<div><span>Items</span><strong>${q.items.length}</strong></div></div><div class="quote-totals"><div><span>Product lines</span><strong>${cash(lineCost)}</strong></div><div><span>Freight</span><strong>${cash(q.freight||0)}</strong></div><div><span>Tax / GST</span><strong>${cash(q.tax||0)}</strong></div><div><span>Document total</span><strong>${cash(q.quoted_total)}</strong></div></div><div class="table-scroll"><table class="source-table"><thead><tr><th>CODE</th><th>QUOTED DESCRIPTION</th><th>QTY</th><th>UNIT</th><th>UNIT PRICE</th><th>LINE TOTAL</th><th>INC GST TOTAL</th><th>SOURCE</th><th>PRICE CHECK</th></tr></thead><tbody>${q.items.length ? q.items.map(e=>`<tr><td><strong>${esc(e.code || '—')}</strong></td><td class="source-description">${esc(e.full_description || e.description)}${e.price_warning ? '<small class="incomplete">Quoted total needs checking</small>' : ''}</td><td>${esc(e.qty)}</td><td>${esc(e.unit)}</td><td>${cash(e.unit_price)}</td><td>${cash(e.total)}</td><td>${cash(e.inc_gst_total)}</td><td><small>${esc(e.source)}</small></td><td>${verifyButton(q.id,e)}</td></tr>`).join('') : '<tr><td colspan="9" class="table-empty">No priced lines were detected. Add or correct lines in Comparison.</td></tr>'}</tbody></table></div></section>`);
+    if (previewUrls.has(q.id)) cards[cards.length-1] = cards[cards.length-1].replace('<a class="subtle-btn quote-compare-link"', `<button class="subtle-btn preview-trigger" type="button" data-preview="${esc(q.id)}">▣ View original PDF</button><a class="subtle-btn quote-compare-link"`);
+    if (q.raw_text) cards[cards.length-1] = cards[cards.length-1].replace(/<\/section>$/, `<details class="quote-raw"><summary>View all extracted document text</summary><pre>${esc(q.raw_text)}</pre></details></section>`);
+  });
+  $('quoteDetails').innerHTML = cards.length ? cards.join('') : '<div class="panel quote-empty">Upload quotes on Overview to see each supplier’s full line list here.</div>';
+}
+
+async function api(path, data) {
+  const res = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)});
+  if (!res.ok) throw new Error((await res.text()).slice(0,180));
+  return res.json();
+}
+async function refresh(rematch=false) {
+  const payload = {quotes: state.quotes, baseline: state.baseline};
+  if (!rematch) payload.groups = state.groups;
+  report = await api('/api/compare', payload);
+  state.groups = report.rows.map(({description,code,qty,unit,baseline_price,matches,confidence}) => ({description,code,qty,unit,baseline_price,matches,confidence}));
+  render();
+}
+function render() {
+  renderQuoteDetails();
+  $('quoteCount').textContent = state.quotes.length;
+  $('itemCount').textContent = report?.row_count || 0;
+  const issueCount = (report?.rows || []).filter(row => row.confidence === 'review' || row.prices.some(p => p == null) || row.prices.some((p,i) => p != null && (row.matches?.[i]?.qty !== row.qty || row.matches?.[i]?.unit !== row.unit || row.matches?.[i]?.price_warning))).length;
+  $('reviewCount').textContent = issueCount;
+  const complete = (report?.complete || []).map((yes,i) => yes ? i : -1).filter(i => i >= 0);
+  const winner = complete.length ? complete.reduce((a,b) => report.landed[a] <= report.landed[b] ? a : b) : -1;
+  $('bestQuote').textContent = winner >= 0 ? cash(report.landed[winner]) : '—';
+  $('bestQuoteFoot').textContent = winner >= 0 ? report.names[winner] : (state.quotes.length ? 'No quote covers every item yet' : 'Upload quotes to see results');
+  $('exportBtn').disabled = !report?.row_count;
+  $('fileCount').textContent = `${state.imported.length} file${state.imported.length === 1 ? '' : 's'}`;
+  $('fileList').innerHTML = state.imported.length ? state.imported.map((f,i) => `<div class="file-row"><div class="file-tag">${esc((f.name.split('.').pop()||'Q').slice(0,4).toUpperCase())}</div><div class="file-info"><strong title="${esc(f.name)}">${esc(f.name)}</strong><small>${f.kind === 'baseline' ? 'Baseline' : 'Quote'} · ${f.items.length} line items</small>${f.warning ? `<div class="file-warning">${esc(f.warning)}</div>` : ''}</div><button class="file-remove" title="Remove file" data-file="${i}">×</button></div>`).join('') : '<div class="empty-files"><div class="empty-icon">▤</div><strong>No files yet</strong><span>Your uploaded quotes will appear here.</span></div>';
+  const incomplete = state.quotes.map((q,i) => report && !report.complete[i] ? `${q.name} (${report.covered[i]}/${report.row_count} lines)` : null).filter(Boolean);
+  $('coverageNotice').hidden = !incomplete.length;
+  $('coverageNotice').textContent = incomplete.length ? `Incomplete coverage: ${incomplete.join('; ')}. The totals shown exclude missing items, so compare complete quotes before choosing a supplier.` : '';
+  const minComplete = winner >= 0 ? report.landed[winner] : null;
+  $('financialTable').querySelector('tbody').innerHTML = state.quotes.length ? state.quotes.map((q,i) => `<tr><td><strong>${esc(q.name)}</strong><small>${esc(q.price_basis || 'basis unspecified')}</small></td><td><span class="flag ${report.complete[i] ? 'ok' : 'review'}">${report.covered[i]}/${report.row_count} ${report.complete[i] ? 'complete' : 'incomplete'}</span></td><td>${cash(report.totals[i])}</td>${['freight','tax','discount'].map(field => `<td><span>$</span><input type="number" step="0.01" min="0" value="${q[field] ?? 0}" aria-label="${esc(q.name)} ${field}" data-qi="${i}" data-cost="${field}"></td>`).join('')}<td class="total-evaluated">${cash(report.landed[i])}</td><td>${cash(q.quoted_total)}${q.quoted_total != null ? `<small class="${Math.abs(report.landed[i]-q.quoted_total) <= .02 ? '' : 'incomplete'}">${Math.abs(report.landed[i]-q.quoted_total) <= .02 ? 'Matches quote' : 'Check variance'}</small>` : ''}</td><td class="${report.complete[i] ? '' : 'incomplete'}">${report.complete[i] && minComplete !== null ? cash(report.landed[i] - minComplete) : 'Incomplete'}</td></tr>`).join('') : '<tr><td colspan="9" class="table-empty">Add quotes to see the financial summary.</td></tr>';
+  const table = $('comparisonTable');
+  table.querySelector('thead').innerHTML = `<tr><th class="item-head">ITEM / MATCH GROUP</th><th>REQUIRED QTY</th><th>BASELINE UNIT</th>${state.quotes.map(q=>`<th class="supplier-head"><strong>${esc(q.name)}</strong><small>${esc(q.price_basis || 'basis unspecified')}</small>${previewUrls.has(q.id) ? `<button class="preview-mini" type="button" data-preview="${esc(q.id)}">View original PDF ↗</button>` : ''}</th>`).join('')}<th>LOWEST UNIT</th><th>REVIEW</th></tr>`;
+  const tbody = table.querySelector('tbody');
+  if (!report?.rows.length) { tbody.innerHTML = `<tr class="placeholder-row"><td colspan="${state.quotes.length+5}"><div class="table-empty">Upload two or more quotes to compare pricing across suppliers.<small>You can also add rows and quotes manually.</small></div></td></tr>`; return; }
+  tbody.innerHTML = report.rows.map((row,gi) => {
+    const missing = row.prices.some(p => p == null);
+    const mismatch = row.prices.some((p,i) => p != null && row.matches?.[i]?.qty !== row.qty);
+    const unitMismatch = row.prices.some((p,i) => p != null && row.matches?.[i]?.unit !== row.unit);
+    const priceWarning = row.prices.some((p,i) => p != null && row.matches?.[i]?.price_warning);
+    const flag = missing ? '<span class="flag missing">Missing quote</span>' : mismatch ? '<span class="flag review">Qty differs</span>' : unitMismatch ? '<span class="flag review">Unit differs</span>' : priceWarning ? '<span class="flag review">Total differs</span>' : row.confidence === 'review' ? '<span class="flag review">Check match</span>' : '<span class="flag ok">Matched</span>';
+    const prices = state.quotes.map((q,qi) => {
+      const entry=row.matches?.[qi],best=entry&&row.prices[qi]===row.best;
+      return `<td class="supplier-cell ${best?'supplier-best':''}">${entry ? `<div class="matched-line"><strong>${esc(entry.full_description || entry.description)}</strong><small>${esc(entry.code || 'No code')} · ${esc(entry.qty)} ${esc(entry.unit)} quoted</small><small>${esc(entry.source)}</small>${verifyButton(q.id,entry)}</div>` : '<div class="unmatched-line">No matching line in this quote</div>'}<div class="supplier-pricing"><label>Unit <span>$</span><input aria-label="${esc(q.name)} unit price for ${esc(row.description)}" type="number" min="0" step="0.01" value="${row.prices[qi] ?? ''}" placeholder="missing" data-gi="${gi}" data-qi="${qi}" data-field="price"></label><div>At required qty <strong>${cash(row.values[qi])}</strong></div></div></td>`;
+    }).join('');
+    const actions = row.confidence === 'unmatched' || row.confidence === 'new' ? `<button class="subtle-btn match-btn" data-merge="${gi}" title="Match this line to another item">Match item</button>` : '';
+    return `<tr><td class="item-cell"><input class="desc-input" aria-label="Description" value="${esc(row.description)}" data-gi="${gi}" data-field="description"><small>${esc(row.code || row.unit || '')} ${actions}</small></td><td><input class="qty-input" aria-label="Required quantity" type="number" min="0.01" step="any" value="${row.qty}" data-gi="${gi}" data-field="qty"></td><td><span>$</span><input class="baseline-input" aria-label="Baseline unit price" type="number" min="0" step="0.01" value="${row.baseline_price ?? ''}" data-gi="${gi}" data-field="baseline"></td>${prices}<td class="best-cell">${cash(row.best)}<small>${esc(row.winners.join(', '))}</small>${row.spread ? `<small>${cash(row.spread)} spread</small>` : ''}</td><td>${flag}</td></tr>`;
+  }).join('');
+}
+
+async function renderPdfPreview(url, token) {
+  const pages = $('pdfPreviewPages');
+  pages.textContent = 'Loading original PDF…';
+  try {
+    const pdf = await pdfjsLib.getDocument({url}).promise;
+    if (token !== previewRender) return;
+    pages.textContent = '';
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+      if (token !== previewRender) return;
+      const page = await pdf.getPage(pageNumber);
+      const sheet = document.createElement('div');
+      sheet.className = 'pdf-rendered-page';
+      const canvas = document.createElement('canvas');
+      canvas.setAttribute('aria-label', `PDF page ${pageNumber} of ${pdf.numPages}`);
+      sheet.append(canvas);
+      pages.append(sheet);
+      const base = page.getViewport({scale:1});
+      const scale = Math.min(2, Math.max(1, (pages.clientWidth - 40) / base.width));
+      const viewport = page.getViewport({scale});
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(viewport.width * pixelRatio);
+      canvas.height = Math.floor(viewport.height * pixelRatio);
+      canvas.style.width = `${viewport.width}px`;
+      canvas.style.height = `${viewport.height}px`;
+      await page.render({canvasContext:canvas.getContext('2d'),viewport,transform:pixelRatio === 1 ? null : [pixelRatio,0,0,pixelRatio,0,0]}).promise;
+    }
+  } catch (error) {
+    if (token !== previewRender) return;
+    pages.textContent = 'Preview unavailable. Open the PDF in a new tab to inspect it.';
+  }
+}
+function renderPreviewEditor() {
+  const quote = state.quotes.find(q => q.id === previewQuoteId);
+  if (!quote) return;
+  const lineCost = cents(quote.items.reduce((sum, item) => sum + (Number(item.total) || 0), 0));
+  $('pdfPreviewSummary').innerHTML = [
+    ['Quote no.', quote.quote_number || '—'],
+    ['Date', quote.quote_date || '—'],
+    ['Price basis', quote.price_basis || 'unspecified'],
+    ['Line items', quote.items.length],
+    ['Current line cost', cash(lineCost)],
+    ['Original PDF total', cash(quote.quoted_total)]
+  ].map(([label,value]) => `<span>${esc(label)}<strong>${esc(value)}</strong></span>`).join('');
+  $('pdfPreviewLines').innerHTML = quote.items.length ? quote.items.map((entry, index) => `<tr data-line-id="${esc(entry.line_id)}"><td><label class="preview-field-label">Code<input aria-label="Line ${index+1} code" data-edit="code" value="${esc(entry.code || '')}"></label><label class="preview-field-label">Description<textarea aria-label="Line ${index+1} description" data-edit="description" rows="2">${esc(entry.full_description || entry.description)}</textarea></label></td><td><label class="preview-field-label">Qty<input aria-label="Line ${index+1} quantity" data-edit="qty" type="number" min="0.000001" step="any" value="${esc(entry.qty)}"></label><label class="preview-field-label">Unit<input aria-label="Line ${index+1} unit" data-edit="unit" value="${esc(entry.unit || 'ea')}"></label></td><td><label class="preview-field-label">Unit price<input aria-label="Line ${index+1} unit price" data-edit="unit_price" type="number" min="0" step="any" value="${esc(entry.unit_price)}"></label></td><td><label class="preview-field-label">Line total<input aria-label="Line ${index+1} line total" data-edit="total" type="number" min="0" step="any" value="${esc(entry.total)}"></label></td><td class="preview-source">${esc(entry.source || 'Manual addition')}${entry.edited ? '<small>Edited</small>' : ''}</td><td>${verifyButton(quote.id,entry)}<button type="button" class="preview-remove" data-preview-action="remove" aria-label="Remove line ${index+1}">Remove</button></td></tr>`).join('') : '<tr class="preview-empty"><td colspan="6">No lines yet. Use Add line to enter one.</td></tr>';
+}
+function updateGroupsForLine(quoteIndex, lineId, entry) {
+  state.groups = state.groups.filter(group => {
+    if (group.matches?.[quoteIndex]?.line_id !== lineId) return true;
+    if (entry) group.matches[quoteIndex] = {...entry};
+    else delete group.matches[quoteIndex];
+    const otherMatches = Object.keys(group.matches).length;
+    const fromBaseline = state.baseline.some(b => b.code === group.code && b.description === group.description);
+    if (!otherMatches && !fromBaseline) return false;
+    if (entry && otherMatches === 1 && !fromBaseline) {
+      group.description = entry.description;
+      group.code = entry.code;
+      group.qty = entry.qty;
+      group.unit = entry.unit;
+    }
+    return true;
+  });
+}
+function addGroupForLine(quoteIndex, entry) {
+  const normalized = value => String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const match = state.groups.find(group => !group.matches?.[quoteIndex] && ((entry.code && group.code && normalized(entry.code) === normalized(group.code)) || normalized(entry.description) === normalized(group.description)));
+  if (match) match.matches[quoteIndex] = {...entry};
+  else state.groups.push({description:entry.description,code:entry.code,qty:entry.qty,unit:entry.unit,baseline_price:null,matches:{[quoteIndex]:{...entry}},confidence:'new'});
+}
+async function savePreviewChange(quote, lineId, field, value) {
+  const quoteIndex = state.quotes.indexOf(quote);
+  const entry = quote.items.find(item => item.line_id === lineId);
+  if (!entry) return;
+  if (['qty','unit_price','total'].includes(field)) {
+    const number = Number(value);
+    if (value === '' || !Number.isFinite(number) || number < 0 || (field === 'qty' && number <= 0)) { alert('Enter a valid positive quantity or non-negative price.'); renderPreviewEditor(); return; }
+    if (field === 'total') { entry.total = cents(number); entry.unit_price = rate(entry.total / Number(entry.qty)); }
+    else if (field === 'unit_price') { entry.unit_price = rate(number); entry.total = cents(Number(entry.qty) * entry.unit_price); }
+    else { entry.qty = number; entry.total = cents(entry.qty * Number(entry.unit_price)); }
+  } else {
+    value = value.trim();
+    if (field === 'description' && !value) { alert('A description is required.'); renderPreviewEditor(); return; }
+    if (field === 'description') { entry.description = value; entry.full_description = value; }
+    else entry[field] = field === 'code' ? value.toUpperCase() : value;
+  }
+  entry.edited = true;
+  entry.price_verified = false;
+  delete entry.price_verified_at;
+  entry.price_warning = false;
+  delete entry.inc_gst_unit;
+  delete entry.inc_gst_total;
+  updateGroupsForLine(quoteIndex, lineId, entry);
+  const record = state.imported.find(file => file.id === quote.id);
+  if (record) record.items = quote.items;
+  const scroll = document.querySelector('.preview-lines-scroll').scrollTop;
+  await refresh();
+  renderPreviewEditor();
+  document.querySelector('.preview-lines-scroll').scrollTop = scroll;
+}
+function openPdfPreview(id) {
+  const quote = state.quotes.find(q => q.id === id);
+  const url = previewUrls.get(id);
+  if (!quote || !url) return;
+  const sourceFile = state.imported.find(f => f.id === id)?.name || quote.name;
+  previewQuoteId = id;
+  quote.items.forEach(entry => { if (!entry.line_id) entry.line_id = newId(); });
+  $('pdfPreviewTitle').textContent = `Original PDF · ${quote.name}`;
+  $('pdfPreviewSubtitle').textContent = sourceFile;
+  renderPreviewEditor();
+  $('pdfOpenLink').href = url;
+  $('pdfPreviewDialog').showModal();
+  const token = ++previewRender;
+  if (globalThis.pdfjsLib) renderPdfPreview(url, token);
+  else { $('pdfPreviewPages').hidden = true; $('pdfPreviewFrame').hidden = false; $('pdfPreviewFrame').src = url; }
+}
+async function togglePriceVerification(quoteId, lineId) {
+  const quoteIndex = state.quotes.findIndex(quote => quote.id === quoteId);
+  const quote = state.quotes[quoteIndex];
+  const entry = quote?.items.find(item => item.line_id === lineId);
+  if (!entry) return;
+  entry.price_verified = !entry.price_verified;
+  if (entry.price_verified) entry.price_verified_at = new Date().toISOString();
+  else delete entry.price_verified_at;
+  updateGroupsForLine(quoteIndex, lineId, entry);
+  const comparisonScroll = document.querySelector('.comparison-panel .table-scroll').scrollLeft;
+  const previewScroll = document.querySelector('.preview-lines-scroll').scrollTop;
+  await refresh();
+  document.querySelector('.comparison-panel .table-scroll').scrollLeft = comparisonScroll;
+  if (previewQuoteId === quoteId) {
+    renderPreviewEditor();
+    document.querySelector('.preview-lines-scroll').scrollTop = previewScroll;
+  }
+}
+document.addEventListener('click', async event => {
+  const verify = event.target.closest('[data-verify-line]');
+  if (verify) { event.preventDefault(); await togglePriceVerification(verify.dataset.verifyQuote, verify.dataset.verifyLine); return; }
+  const button = event.target.closest('[data-preview]');
+  if (button) {event.preventDefault(); openPdfPreview(button.dataset.preview)}
+});
+$('pdfPreviewClose').addEventListener('click', () => $('pdfPreviewDialog').close());
+$('pdfPreviewDialog').addEventListener('close', () => { previewQuoteId = null; previewRender++; $('pdfPreviewPages').replaceChildren(); $('pdfPreviewFrame').src = 'about:blank'; });
+$('pdfAddLine').addEventListener('click', () => {
+  const tbody = $('pdfPreviewLines');
+  tbody.querySelector('.preview-empty')?.remove();
+  if (tbody.querySelector('.preview-draft')) { tbody.querySelector('.preview-draft textarea').focus(); return; }
+  tbody.insertAdjacentHTML('beforeend', '<tr class="preview-draft"><td><label class="preview-field-label">Code<input data-draft="code" placeholder="Optional code"></label><label class="preview-field-label">Description<textarea data-draft="description" rows="2" placeholder="Item description"></textarea></label></td><td><label class="preview-field-label">Qty<input data-draft="qty" type="number" min="0.000001" step="any" value="1"></label><label class="preview-field-label">Unit<input data-draft="unit" value="ea"></label></td><td><label class="preview-field-label">Unit price<input data-draft="unit_price" type="number" min="0" step="any" value="0"></label></td><td><label class="preview-field-label">Line total<input data-draft="total" type="number" min="0" step="any" value="0"></label></td><td class="preview-source">Manual addition</td><td><button type="button" class="preview-save" data-preview-action="save">Save line</button><button type="button" class="preview-remove" data-preview-action="cancel">Cancel</button></td></tr>');
+  tbody.querySelector('.preview-draft textarea').focus();
+});
+$('pdfPreviewLines').addEventListener('change', async event => {
+  const draft = event.target.closest('[data-draft]');
+  if (draft && ['qty','unit_price','total'].includes(draft.dataset.draft)) {
+    const row = draft.closest('tr');
+    const qty = Number(row.querySelector('[data-draft="qty"]').value);
+    const price = Number(row.querySelector('[data-draft="unit_price"]').value);
+    if (qty > 0 && price >= 0) {
+      if (draft.dataset.draft === 'total') row.querySelector('[data-draft="unit_price"]').value = rate(Number(draft.value) / qty);
+      else row.querySelector('[data-draft="total"]').value = cents(qty * price);
+    }
+    return;
+  }
+  const input = event.target.closest('[data-edit]');
+  if (!input || !previewQuoteId) return;
+  const quote = state.quotes.find(q => q.id === previewQuoteId);
+  if (quote) await savePreviewChange(quote, input.closest('tr').dataset.lineId, input.dataset.edit, input.value);
+});
+$('pdfPreviewLines').addEventListener('click', async event => {
+  const button = event.target.closest('[data-preview-action]');
+  if (!button || !previewQuoteId) return;
+  const quote = state.quotes.find(q => q.id === previewQuoteId);
+  if (!quote) return;
+  const action = button.dataset.previewAction;
+  if (action === 'cancel') { renderPreviewEditor(); return; }
+  if (action === 'save') {
+    const row = button.closest('tr');
+    const get = key => row.querySelector(`[data-draft="${key}"]`).value.trim();
+    const description = get('description'), qty = Number(get('qty')), unitPrice = Number(get('unit_price')), total = Number(get('total'));
+    if (!description || !Number.isFinite(qty) || qty <= 0 || !Number.isFinite(unitPrice) || unitPrice < 0 || !Number.isFinite(total) || total < 0) { alert('Enter a description, positive quantity and valid prices.'); return; }
+    const entry = {line_id:newId(),code:get('code').toUpperCase(),description,full_description:description,qty,unit:get('unit') || 'ea',unit_price:rate(unitPrice),total:cents(qty*unitPrice),source:'Manual addition',edited:true,price_warning:false};
+    if (Math.abs(total - entry.total) > .01) { entry.total = cents(total); entry.unit_price = rate(entry.total / qty); }
+    quote.items.push(entry);
+    addGroupForLine(state.quotes.indexOf(quote), entry);
+  } else if (action === 'remove') {
+    const lineId = button.closest('tr').dataset.lineId;
+    const index = quote.items.findIndex(item => item.line_id === lineId);
+    if (index < 0) return;
+    quote.items.splice(index, 1);
+    updateGroupsForLine(state.quotes.indexOf(quote), lineId, null);
+  }
+  const record = state.imported.find(file => file.id === quote.id);
+  if (record) record.items = quote.items;
+  await refresh();
+  renderPreviewEditor();
+});
+window.addEventListener('beforeunload', () => {for(const url of previewUrls.values()) URL.revokeObjectURL(url)});
+
+async function importFiles(files) {
+  if (!files.length) return;
+  const form = new FormData();
+  for (const file of files) form.append('files',file);
+  $('dropzone').classList.add('dragging');
+  try {
+    const res = await fetch('/api/import',{method:'POST',body:form});
+    if (!res.ok) throw new Error(`Import failed (${res.status})`);
+    const parsed = await res.json();
+    parsed.forEach((entry, i) => {
+      if (entry.kind === 'error') { alert(`${entry.name}: ${entry.warning}`); return; }
+      const name = files[i]?.name || entry.name;
+      const id = newId();
+      if(entry.kind === 'baseline') {
+        for(const previous of state.imported.filter(f=>f.kind==='baseline')){
+          if(previewUrls.has(previous.id)){URL.revokeObjectURL(previewUrls.get(previous.id));previewUrls.delete(previous.id)}
+        }
+        state.imported = state.imported.filter(f => f.kind !== 'baseline');
+      }
+      const record = {...entry,name,id};
+      if (entry.kind !== 'baseline') record.items = entry.items.map(item => ({...item,line_id:newId()}));
+      state.imported.push(record);
+      if(name.toLowerCase().endsWith('.pdf') && files[i]) previewUrls.set(id, URL.createObjectURL(files[i]));
+      if (entry.kind === 'baseline') {state.baseline = entry.items; state.baselineName = name;}
+      else state.quotes.push({id,name:entry.name,items:record.items,freight:entry.freight||0,tax:entry.tax||0,
+                              discount:entry.discount||0,quoted_total:entry.quoted_total??null,price_basis:entry.price_basis||'unspecified',
+                              quote_number:entry.quote_number||'',quote_date:entry.quote_date||'',expiry_date:entry.expiry_date||'',
+                              raw_text:entry.raw_text||''});
+    });
+    await refresh(true);
+  } catch(err) {alert(err.message)} finally {$('dropzone').classList.remove('dragging'); $('fileInput').value='';}
+}
+
+$('dropzone').addEventListener('click',()=> $('fileInput').click());
+$('dropzone').addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$('fileInput').click()}});
+$('fileInput').addEventListener('change',e=>importFiles(e.target.files));
+$('dropzone').addEventListener('dragover',e=>{e.preventDefault();$('dropzone').classList.add('dragging')});
+$('dropzone').addEventListener('dragleave',()=> $('dropzone').classList.remove('dragging'));
+$('dropzone').addEventListener('drop',e=>{e.preventDefault();importFiles(e.dataTransfer.files)});
+$('fileList').addEventListener('click',async e=>{
+  const button=e.target.closest('[data-file]'); if(!button)return;
+  const index=Number(button.dataset.file), removed=state.imported.splice(index,1)[0];
+  if(previewUrls.has(removed.id)){URL.revokeObjectURL(previewUrls.get(removed.id));previewUrls.delete(removed.id)}
+  if(removed.kind==='baseline'){state.baseline=[];state.baselineName=''}
+  else {const qi=state.quotes.findIndex(q=>q.id===removed.id);if(qi>=0)state.quotes.splice(qi,1)}
+  await refresh(true);
+});
+$('comparisonTable').addEventListener('change',async e=>{
+  const input=e.target, gi=Number(input.dataset.gi), field=input.dataset.field;
+  if(!field)return;
+  const group=state.groups[gi]; if(!group)return;
+  if(field==='description') group.description=input.value.trim();
+  if(field==='qty') group.qty=Math.max(.01,num(input.value)||1);
+  if(field==='baseline') group.baseline_price=input.value===''?null:Math.max(0,num(input.value)||0);
+  if(field==='price'){
+    const qi=Number(input.dataset.qi);
+    const old=group.matches[qi];
+    const sourceItem=old && state.quotes[qi].items.find(x=>x.source===old.source && x.description===old.description);
+    if(input.value==='') {
+      if(sourceItem) state.quotes[qi].items.splice(state.quotes[qi].items.indexOf(sourceItem),1);
+      delete group.matches[qi];
+    }
+    else {
+      const price=Math.max(0,num(input.value)||0);
+      const existing=sourceItem || {line_id:newId(),description:group.description,code:group.code,qty:group.qty,unit:group.unit,source:'Manual correction'};
+      existing.unit_price=price; existing.total=price*existing.qty;
+      existing.price_warning=false;
+      existing.price_verified=false;
+      delete existing.price_verified_at;
+      group.matches[qi]=existing;
+      if(!state.quotes[qi].items.includes(existing)) state.quotes[qi].items.push(existing);
+    }
+  }
+  await refresh();
+});
+$('comparisonTable').addEventListener('click',async e=>{
+  const btn=e.target.closest('[data-merge]');if(!btn)return;
+  const from=Number(btn.dataset.merge);
+  const choices=state.groups.map((g,i)=>i===from?null:`${i+1}: ${g.description}`).filter(Boolean);
+  const chosen=prompt(`Enter the item number to match this line with:\n${choices.slice(0,60).join('\n')}`);
+  if(!chosen)return;
+  const to=Number(chosen)-1;
+  if(!Number.isInteger(to)||to<0||to>=state.groups.length||to===from){alert('Choose a valid item number.');return}
+  const source=state.groups[from],target=state.groups[to];
+  for(const [qi,entry] of Object.entries(source.matches)){
+    if(target.matches[qi]){alert('That supplier already has an item matched to the target row.');return}
+    target.matches[qi]=entry;
+  }
+  target.confidence='review';state.groups.splice(from,1);await refresh();
+});
+$('financialTable').addEventListener('change',async e=>{
+  const input=e.target, field=input.dataset.cost, qi=Number(input.dataset.qi);
+  if(!field || !state.quotes[qi])return;
+  state.quotes[qi][field]=Math.max(0,num(input.value)||0);
+  await refresh();
+});
+$('addRowBtn').addEventListener('click',async()=>{
+  const description=prompt('Item description');if(!description?.trim())return;
+  state.groups.push({description:description.trim(),code:'',qty:1,unit:'ea',baseline_price:null,matches:{},confidence:'new'});
+  await refresh();
+});
+$('addQuoteBtn').addEventListener('click',async()=>{
+  const name=prompt('Supplier or subcontractor name');if(!name?.trim())return;
+  state.quotes.push({id:newId(),name:name.trim(),items:[]});await refresh();
+});
+$('exportBtn').addEventListener('click',async()=>{
+  const button=$('exportBtn');button.disabled=true;button.textContent='Preparing spreadsheet…';
+  try{
+    const res=await fetch('/api/export',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({project:$('project').value,quotes:state.quotes,groups:state.groups})});
+    if(!res.ok)throw new Error('Export failed');
+    const url=URL.createObjectURL(await res.blob());const a=document.createElement('a');a.href=url;a.download='quote-comparison.xlsx';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }catch(err){alert(err.message)}finally{button.disabled=false;button.textContent='↧   Export comparison'}
+});
+refresh();
+showView(location.hash.slice(1));
+
+</script>
+</body>
+</html>

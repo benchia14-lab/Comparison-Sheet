@@ -1,6 +1,7 @@
-"""Build the offline HTML from the tested web UI and pinned browser libraries."""
+"""Build the offline HTML and the standard CDN-linked HTML from the tested web UI."""
 from __future__ import annotations
 
+import base64
 import hashlib
 from pathlib import Path
 from urllib.request import urlopen
@@ -29,12 +30,41 @@ def library(name, url, expected):
     return text
 
 
-def main():
+def page():
     html = (ROOT / 'templates/index.html').read_text()
     css = (ROOT / 'static/style.css').read_text()
-    # The standalone page must not request a Google font when opened offline.
+    # Neither single-file page requests a Google font, so both look the same offline.
     css = css[css.index(':root'):]
-    html = html.replace('<link rel="stylesheet" href="/static/style.css">', f'<style>\n{css}\n</style>')
+    return html.replace('<link rel="stylesheet" href="/static/style.css">', f'<style>\n{css}\n</style>')
+
+
+def remove_server_pdf_scripts(html):
+    return html.replace('<script src="/static/vendor/pdf.min.js"></script>\n  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = \'/static/vendor/pdf.worker.min.js\';</script>\n  ', '')
+
+
+def app_scripts():
+    return [f'<script>\n{(ROOT / "static" / name).read_text()}\n</script>'
+            for name in ('standalone-adapter.js', 'app.js')]
+
+
+def build_standard():
+    """Write a regular-sized HTML page that loads the pinned libraries from the CDN."""
+    sri = {name: (url, 'sha256-' + base64.b64encode(bytes.fromhex(digest)).decode())
+           for name, url, digest in LIBRARIES}
+    parts = [f'<script src="{sri[name][0]}" integrity="{sri[name][1]}" crossorigin="anonymous"></script>'
+             for name in ('xlsx.full.min.js', 'pdf.min.js', 'mammoth.browser.min.js')]
+    parts.append(f"<script>pdfjsLib.GlobalWorkerOptions.workerSrc = '{sri['pdf.worker.min.js'][0]}';</script>")
+    parts += app_scripts()
+    html = remove_server_pdf_scripts(page())
+    html = html.replace('<script src="/static/app.js"></script>', '\n'.join(parts))
+    output = ROOT / 'QuoteLine.html'
+    output.write_text(html)
+    print(f'Created {output} ({output.stat().st_size:,} bytes)')
+
+
+def main():
+    build_standard()
+    html = page()
     scripts = {name: library(name, url, digest) for name, url, digest in LIBRARIES}
     vendor = ROOT / 'static/vendor'
     vendor.mkdir(exist_ok=True)
@@ -44,9 +74,8 @@ def main():
              ('xlsx.full.min.js', 'pdf.min.js', 'mammoth.browser.min.js')]
     parts.append(f'<script id="pdf-worker" type="text/plain">\n{scripts["pdf.worker.min.js"]}\n</script>')
     parts.append("<script>pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([document.getElementById('pdf-worker').textContent], {type:'application/javascript'}));</script>")
-    for name in ('standalone-adapter.js', 'app.js'):
-        parts.append(f'<script>\n{(ROOT / "static" / name).read_text()}\n</script>')
-    html = html.replace('<script src="/static/vendor/pdf.min.js"></script>\n  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = \'/static/vendor/pdf.worker.min.js\';</script>\n  ', '')
+    parts += app_scripts()
+    html = remove_server_pdf_scripts(html)
     html = html.replace('<script src="/static/app.js"></script>', '\n'.join(parts))
     html = html.replace('QuoteLine · Comparison workspace', 'QuoteLine · Standalone comparison workspace')
     output = ROOT / 'QuoteLine-Standalone.html'
