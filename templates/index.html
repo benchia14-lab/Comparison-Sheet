@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuoteLine · Comparison workspace</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">≡</span><span>Quote<span class="brand-light">Line</span></span></div>
+      <div class="workspace-label">WORKSPACE</div>
+      <nav aria-label="Workspace pages"><a class="active" href="#overview" data-view="overview">▦ <span>Overview</span></a><a href="#quotes" data-view="quotes">▤ <span>Quotes</span></a><a href="#comparison" data-view="comparison">⇄ <span>Comparison</span></a></nav>
+      <div class="side-bottom"><div class="side-note"><span class="tiny-dot"></span> Local workspace<br><small>Files are processed on this machine.</small></div><div class="avatar">QL</div><span class="side-user">Comparison tool<small>Project workspace</small></span></div>
+    </aside>
+    <main>
+      <header class="topbar"><div class="breadcrumb">Workspace <span>/</span> <strong>Quote comparison</strong></div><div class="top-right"><span class="saved-pill">● &nbsp; Local session</span><span class="circle-icon">?</span></div></header>
+      <div class="content" id="workspaceContent">
+        <div class="eyebrow">PROCUREMENT WORKSPACE <span class="slash">/</span> COMPARISON</div>
+        <div class="title-row"><div><h1 id="pageTitle">Quote comparison</h1><p class="subtitle" id="pageSubtitle">Bring every supplier onto the same page. Find the best price, line by line.</p></div><button class="export-btn" id="exportBtn" disabled>↧ &nbsp; Export comparison</button></div>
+        <div class="project-line"><label for="project">Project</label><input id="project" placeholder="Enter project name" value="New comparison"><span class="autosave">Session only · export to keep a copy</span></div>
+
+        <section class="workspace-view" id="overview" aria-label="Overview">
+        <section class="summary-grid" aria-label="Summary">
+          <div class="summary-card"><span class="summary-icon green">▤</span><div class="summary-label">Quotes received</div><div class="summary-value" id="quoteCount">0</div><div class="summary-foot">Supplier & subcontractor quotes</div></div>
+          <div class="summary-card"><span class="summary-icon blue">▦</span><div class="summary-label">Items compared</div><div class="summary-value" id="itemCount">0</div><div class="summary-foot">Across all uploaded files</div></div>
+          <div class="summary-card"><span class="summary-icon amber">◈</span><div class="summary-label">Lowest complete quote</div><div class="summary-value compact" id="bestQuote">—</div><div class="summary-foot" id="bestQuoteFoot">Upload quotes to see results</div></div>
+          <div class="summary-card"><span class="summary-icon violet">!</span><div class="summary-label">Needs review</div><div class="summary-value" id="reviewCount">0</div><div class="summary-foot">Missing or uncertain matches</div></div>
+        </section>
+
+        <div class="main-grid"><section class="panel upload-panel"><div class="panel-heading"><div><h2>Import quotes</h2><p>Add supplier quotes, subcontractor quotes or your baseline sheet.</p></div><span class="step">01 / IMPORT</span></div><div class="dropzone" id="dropzone" tabindex="0" role="button"><input id="fileInput" type="file" multiple accept=".xlsx,.csv,.pdf,.docx,.txt" hidden><div class="upload-icon">↥</div><strong>Drop quote files here</strong><span>or <u>browse files</u> from your computer</span><small>XLSX, CSV, text PDF, DOCX or TXT · up to 20 MB per upload</small></div><div class="upload-footer"><span>ⓘ</span> Scanned image PDFs need OCR before import. Check extracted rows before relying on totals.</div></section>
+        <section class="panel files-panel"><div class="panel-heading"><div><h2>Imported files</h2><p>Your source documents and detected line items.</p></div><span class="file-count" id="fileCount">0 files</span></div><div id="fileList" class="file-list"><div class="empty-files"><div class="empty-icon">▤</div><strong>No files yet</strong><span>Your uploaded quotes will appear here.</span></div></div></section></div>
+        </section>
+
+        <section class="workspace-view" id="quotes" aria-label="Quotes" hidden>
+          <div class="view-intro"><div class="heading-eyebrow">02 / SOURCE QUOTES</div><h2>Standardized quote details</h2><p>Every imported line is shown under its supplier with the source description, quantity, unit price and totals. This is the data used in the comparison.</p></div>
+          <div id="quoteDetails"><div class="panel quote-empty">Upload quotes on Overview to see each supplier’s full line list here.</div></div>
+        </section>
+
+        <section class="workspace-view" id="comparison" aria-label="Comparison" hidden>
+        <section class="panel comparison-panel"><div class="panel-heading comparison-heading"><div><div class="heading-eyebrow">03 / ANALYSE</div><h2>Item-by-item comparison</h2><p>Items run down the page; each supplier has a column showing exactly which quoted line and price were matched. Prices use the required quantity.</p></div><div class="table-actions"><button class="subtle-btn" id="addRowBtn">+ Add line</button><button class="subtle-btn" id="addQuoteBtn">+ Add quote</button></div></div><div class="notice" id="coverageNotice" hidden></div><div class="table-scroll"><table id="comparisonTable" class="matrix-table"><thead><tr><th>ITEM / DESCRIPTION</th><th>REQ. QTY</th><th>BASELINE</th><th>SUPPLIER QUOTES</th><th>LOWEST</th><th>FLAG</th></tr></thead><tbody><tr class="placeholder-row"><td colspan="6"><div class="table-empty">Upload two or more quotes to compare pricing across suppliers.<small>You can also add rows and quotes manually.</small></div></td></tr></tbody></table></div></section>
+        <section class="panel financial-panel"><div class="panel-heading"><div><div class="heading-eyebrow">03 / EVALUATE</div><h2>Financial summary</h2><p>Compare ex-GST lines on the same basis, then include freight, tax and discounts. Check the evaluated total against the quote.</p></div></div><div class="table-scroll"><table id="financialTable"><thead><tr><th>SUPPLIER</th><th>LINE COVERAGE</th><th>LINE COST</th><th>FREIGHT</th><th>TAX / GST</th><th>DISCOUNT</th><th>TOTAL EVALUATED</th><th>QUOTED TOTAL</th><th>GAP TO LOWEST</th></tr></thead><tbody><tr><td colspan="9" class="table-empty">Add quotes to see the financial summary.</td></tr></tbody></table></div></section>
+        </section>
+        <footer>QuoteLine compares extracted line items. Confirm scope, inclusions, taxes and freight before awarding work.</footer>
+      </div>
+    </main>
+  </div>
+  <dialog id="pdfPreviewDialog" class="pdf-preview-dialog" aria-labelledby="pdfPreviewTitle">
+    <div class="pdf-preview-shell">
+      <div class="pdf-preview-toolbar"><div><span class="heading-eyebrow">SOURCE DOCUMENT / CROSS-CHECK</span><h2 id="pdfPreviewTitle">Original supplier PDF</h2><p id="pdfPreviewSubtitle">Compare the source PDF with the extracted lines.</p></div><div class="pdf-preview-actions"><a id="pdfOpenLink" class="subtle-btn" target="_blank" rel="noopener noreferrer">Open PDF in new tab ↗</a><button id="pdfPreviewClose" class="export-btn" type="button">Close</button></div></div>
+      <div class="pdf-preview-split"><div class="pdf-preview-document"><div class="pane-heading">ORIGINAL PDF <span>Scroll through the uploaded pages</span></div><div id="pdfPreviewPages" class="pdf-preview-pages" role="region" aria-label="Original supplier PDF pages"></div><iframe id="pdfPreviewFrame" title="Original supplier PDF" src="about:blank" hidden></iframe></div><div class="pdf-preview-extracted"><div class="pane-heading">EXTRACTED QUOTE <span>Standardized line items</span></div><div id="pdfPreviewSummary" class="pdf-preview-summary"></div><div class="preview-lines-scroll"><table class="preview-lines-table"><thead><tr><th>CODE & DESCRIPTION</th><th>QTY</th><th>UNIT PRICE</th><th>LINE TOTAL</th><th>SOURCE</th></tr></thead><tbody id="pdfPreviewLines"></tbody></table></div><p class="preview-help">Check each extracted line against the PDF. The comparison uses these unit prices.</p></div></div>
+    </div>
+  </dialog>
+  <script src="/static/vendor/pdf.min.js"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = '/static/vendor/pdf.worker.min.js';</script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
