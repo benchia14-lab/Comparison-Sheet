@@ -1,10 +1,14 @@
-# Netlify hosts the browser-only app. The Flask server in app.py does not run on Netlify.
+# Netlify hosts the browser app behind Microsoft sign-in. The Flask server in app.py does not run on Netlify.
 [build]
-  command = "mkdir -p site && cp QuoteLine.html site/index.html && cp QuoteLine-Standalone.html site/"
+  command = "python3 scripts/build_site.py"
   publish = "site"
 
 [[headers]]
   for = "/*"
   [headers.values]
     X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "no-referrer"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # SAMEORIGIN rather than DENY: MSAL renews the sign-in in a hidden same-site iframe.
+    X-Frame-Options = "SAMEORIGIN"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Strict-Transport-Security = "max-age=31536000"
