@@ -1,9 +1,11 @@
+import base64
 import io
 import json
 import shutil
 import subprocess
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 import pymupdf as fitz
@@ -16,12 +18,15 @@ HERE = Path(__file__).resolve().parent
 
 def export_workbook(project, quotes, report, generated_at='2026-10-16T09:00:00'):
     """Build the browser export with Node and return it opened with cached formula results."""
-    payload = json.dumps({'project': project, 'quotes': quotes, 'report': report, 'generatedAt': generated_at})
+    png = (HERE.parent / 'static/axis-logo.png').read_bytes()
+    logo = {'dataUrl': 'data:image/png;base64,' + base64.b64encode(png).decode(),
+            'width': int.from_bytes(png[16:20], 'big'), 'height': int.from_bytes(png[20:24], 'big')}
+    payload = json.dumps({'project': project, 'quotes': quotes, 'report': report, 'generatedAt': generated_at, 'logo': logo})
     with tempfile.TemporaryDirectory() as folder:
         out = Path(folder) / 'export.xlsx'
         subprocess.run(['node', str(HERE / 'export_workbook.js'), str(out)], input=payload.encode(), check=True)
         data = out.read_bytes()
-    return openpyxl.load_workbook(io.BytesIO(data), data_only=True), openpyxl.load_workbook(io.BytesIO(data))
+    return openpyxl.load_workbook(io.BytesIO(data), data_only=True), openpyxl.load_workbook(io.BytesIO(data)), data
 
 
 class WorkflowTests(unittest.TestCase):
@@ -53,9 +58,12 @@ class WorkflowTests(unittest.TestCase):
                   {'name': 'B: Plumbing/Supply', 'items': items_b, 'freight': 5, 'discount': 10,
                    'expiry_date': '01/10/2026', 'quoted_total': 515}]
         report = compare(quotes, build_groups(quotes, []))
-        values, formulas = export_workbook('Test project', quotes, report)
+        values, formulas, data = export_workbook('Test project', quotes, report)
         self.assertEqual(values.sheetnames, ['Summary', 'Comparison', 'A', 'B Plumbing Supply'])
         summary = values['Summary']
+        with zipfile.ZipFile(io.BytesIO(data)) as parts:  # Axis logo in each tab's banner
+            self.assertEqual([n for n in parts.namelist() if n.startswith('xl/media/') and not n.endswith('/')], ['xl/media/image1.png'])
+            self.assertEqual(len([n for n in parts.namelist() if n.startswith('xl/drawings/drawing') and n.endswith('.xml')]), 4)
         self.assertEqual([c.value for c in summary[9]][:3], ['Rank', 'Supplier', 'Quote no.'])
         self.assertEqual(summary['B10'].value, 'A')
         self.assertEqual(summary['C10'].value, '1001')

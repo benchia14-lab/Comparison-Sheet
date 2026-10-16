@@ -18,6 +18,7 @@ def main():
     shutil.rmtree(SITE, ignore_errors=True)
     shutil.copytree(ROOT / 'web', SITE)
     shutil.copy(ROOT / 'static/favicon.png', SITE / 'favicon.png')
+    shutil.copy(ROOT / 'static/axis-logo.png', SITE / 'axis-logo.png')
     html = (ROOT / 'QuoteLine.html').read_text()
     marker = '  <meta name="viewport"'
     if marker not in html or 'auth-guard.js' in html:

@@ -393,13 +393,23 @@ $('addQuoteBtn').addEventListener('click',async()=>{
   const name=prompt('Supplier or subcontractor name');if(!name?.trim())return;
   state.quotes.push({id:newId(),name:name.trim(),items:[]});await refresh();
 });
+// The sidebar's Axis logo as a PNG for the workbook banners; the export still works without it.
+function brandLogo(){
+  const img=document.querySelector('.brand-logo');
+  if(!img?.complete||!img.naturalWidth)return null;
+  try{
+    const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+    canvas.getContext('2d').drawImage(img,0,0);
+    return {dataUrl:canvas.toDataURL('image/png'),width:img.naturalWidth,height:img.naturalHeight};
+  }catch{return null}
+}
 $('exportBtn').addEventListener('click',async()=>{
   const button=$('exportBtn');button.disabled=true;button.textContent='Preparing spreadsheet…';
   try{
     if(!window.QuoteLineWorkbook)throw new Error('The spreadsheet library did not load. Check your internet connection and reload the page.');
     await refresh();
     const quotes=state.quotes.map(q=>({...q,source_file:state.imported.find(f=>f.id===q.id)?.name||''}));
-    const buffer=await QuoteLineWorkbook.build({project:$('project').value,quotes,report});
+    const buffer=await QuoteLineWorkbook.build({project:$('project').value,quotes,report,logo:brandLogo()});
     const file=($('project').value.trim()||'quote-comparison').replace(/[^\w .-]+/g,'').trim().replace(/\s+/g,'-')||'quote-comparison';
     const url=URL.createObjectURL(new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));const a=document.createElement('a');a.href=url;a.download=`${file}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }catch(err){alert(err.message)}finally{button.disabled=false;button.textContent='↧   Export comparison'}
