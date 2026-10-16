@@ -391,7 +391,7 @@ def export():
     header = ['Code', 'Description', 'Required Qty', 'Unit', 'Baseline Unit', 'Baseline Total']
     for name in report['names']:
         header += [f'{name} Quoted Code', f'{name} Quoted Description', f'{name} Quoted Qty',
-                   f'{name} Quoted Unit', f'{name} Unit Price', f'{name} At Required Qty', f'{name} Source']
+                   f'{name} Quoted Unit', f'{name} Unit Price', f'{name} At Required Qty', f'{name} Source', f'{name} Price Verified']
     header += ['Lowest Unit', 'Lowest Supplier', 'Price Spread at Required Qty', 'Review Flag']
     ws.append(header)
     for row in report['rows']:
@@ -401,12 +401,13 @@ def export():
             match = row.get('matches', {}).get(str(qi)) or row.get('matches', {}).get(qi)
             values += [match.get('code') if match else None, (match.get('full_description') or match.get('description')) if match else None,
                        match.get('qty') if match else None, match.get('unit') if match else None,
-                       row['prices'][qi], row['values'][qi], match.get('source') if match else 'MISSING']
+                       row['prices'][qi], row['values'][qi], match.get('source') if match else 'MISSING',
+                       ('Yes' if match.get('price_verified') else 'No') if match else None]
         values += [row['best'], ', '.join(row['winners']), row['spread'], row.get('confidence')]
         ws.append(values)
     ws.append([])
-    ws.append(['QUOTE TOTALS', '', '', '', '', ''] + [x for i in range(len(quotes)) for x in ('', '', '', '', '', report['totals'][i], '')])
-    ws.append(['LINES COVERED', '', '', '', '', ''] + [x for i in range(len(quotes)) for x in ('', '', '', '', '', f"{report['covered'][i]}/{report['row_count']}", '')])
+    ws.append(['QUOTE TOTALS', '', '', '', '', ''] + [x for i in range(len(quotes)) for x in ('', '', '', '', '', report['totals'][i], '', '')])
+    ws.append(['LINES COVERED', '', '', '', '', ''] + [x for i in range(len(quotes)) for x in ('', '', '', '', '', f"{report['covered'][i]}/{report['row_count']}", '', '')])
     for cell in ws[4]:
         cell.fill = PatternFill('solid', fgColor='203B38')
         cell.font = Font(color='FFFFFF', bold=True)
@@ -427,15 +428,18 @@ def export():
             if isinstance(cell.value, (int, float)) and cell.column != 3:
                 cell.number_format = '#,##0.00;[Red](#,##0.00)'
     detail = wb.create_sheet('Source lines')
-    detail.append(['Quote', 'Code', 'Description', 'Quoted Qty', 'Unit', 'Quoted Unit Price', 'Quoted Line Total', 'Source'])
+    detail.append(['Quote', 'Code', 'Description', 'Quoted Qty', 'Unit', 'Quoted Unit Price', 'Quoted Line Total', 'Source', 'Price Verified', 'Verified At (UTC)'])
     for quote in quotes:
         for entry in quote['items']:
             detail.append([quote['name'], entry.get('code'), entry.get('full_description') or entry.get('description'), entry.get('qty'),
-                           entry.get('unit'), entry.get('unit_price'), entry.get('total'), entry.get('source')])
+                           entry.get('unit'), entry.get('unit_price'), entry.get('total'), entry.get('source'),
+                           'Yes' if entry.get('price_verified') else 'No', entry.get('price_verified_at')])
     detail.freeze_panes = 'C2'
     detail.auto_filter.ref = detail.dimensions
     detail.column_dimensions['C'].width = 52
     detail.column_dimensions['H'].width = 30
+    detail.column_dimensions['I'].width = 17
+    detail.column_dimensions['J'].width = 25
     summary = wb.create_sheet('Financial summary', 0)
     summary.append(['Project', clean(data.get('project'))])
     summary.append(['Quoted line costs use required quantities. Enter tax, freight and discounts after checking quote terms.'])

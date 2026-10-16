@@ -13,6 +13,8 @@ class WorkflowTests(unittest.TestCase):
         b = b'SKU,Item Description,Quantity,Unit Rate,Amount\nSIN01,Handwash basin Caroma,2,200,400\nTAP01,Mixer Urbane,1,120,120\n'
         items_a, _ = parse_file('a.csv', a)
         items_b, _ = parse_file('b.csv', b)
+        items_a[0]['price_verified'] = True
+        items_a[0]['price_verified_at'] = '2026-10-16T12:00:00.000Z'
         quotes = [{'name': 'A', 'items': items_a, 'freight': 30, 'tax': 20},
                   {'name': 'B', 'items': items_b, 'freight': 5, 'discount': 10}]
         groups = build_groups(quotes, [])
@@ -27,6 +29,10 @@ class WorkflowTests(unittest.TestCase):
         book = openpyxl.load_workbook(io.BytesIO(response.data), data_only=True)
         self.assertEqual(book.sheetnames, ['Financial summary', 'Comparison', 'Source lines'])
         self.assertEqual(book['Financial summary']['I5'].value, 515)
+        self.assertEqual(book['Comparison']['N5'].value, 'Yes')
+        self.assertEqual(book['Source lines']['I2'].value, 'Yes')
+        self.assertEqual(book['Source lines']['J2'].value, '2026-10-16T12:00:00.000Z')
+        self.assertEqual(book['Source lines']['I4'].value, 'No')
 
     def test_real_quote_layouts_match_and_reconcile(self):
         benton = '''BENTONS DERRIMUT

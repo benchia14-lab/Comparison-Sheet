@@ -10,6 +10,7 @@ let previewQuoteId = null;
 const newId = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
 const cents = value => Math.round(value * 100) / 100;
 const rate = value => Math.round(value * 1e6) / 1e6;
+const verifyButton = (quoteId, entry) => `<button type="button" class="verify-price ${entry.price_verified ? 'is-verified' : ''}" data-verify-quote="${esc(quoteId)}" data-verify-line="${esc(entry.line_id)}" aria-pressed="${entry.price_verified ? 'true' : 'false'}" title="${entry.price_verified ? 'Click to clear price verification' : 'Confirm this price against the source quote'}">${entry.price_verified ? '✓ Price verified' : 'Verify price'}</button>`;
 const pageCopy = {
   overview: ['Quote comparison', 'Bring every supplier onto the same page. Find the best price, line by line.'],
   quotes: ['Quotes', 'Review every supplier quote in one consistent format, including the source line behind each price.'],
@@ -37,7 +38,7 @@ function renderQuoteDetails() {
     const file = state.imported.find(f=>f.id===q.id)?.name || 'Entered manually';
     const lineCost = q.items.reduce((sum,e)=>sum+(Number(e.total)||0),0);
     const metadata = [['Quote no.',q.quote_number],['Quote date',q.quote_date],['Expiry',q.expiry_date],['Price basis',q.price_basis]].filter(([,value])=>value&&value!=='unspecified');
-    cards.push(`<section class="panel quote-detail-card"><div class="quote-detail-head"><div><span class="heading-eyebrow">SUPPLIER ${qi+1} / SOURCE QUOTE</span><h2>${esc(q.name)}</h2><p class="source-file">${esc(file)}</p></div><a class="subtle-btn quote-compare-link" href="#comparison">View comparison →</a></div><div class="quote-meta">${metadata.map(([label,value])=>`<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join('')}<div><span>Items</span><strong>${q.items.length}</strong></div></div><div class="quote-totals"><div><span>Product lines</span><strong>${cash(lineCost)}</strong></div><div><span>Freight</span><strong>${cash(q.freight||0)}</strong></div><div><span>Tax / GST</span><strong>${cash(q.tax||0)}</strong></div><div><span>Document total</span><strong>${cash(q.quoted_total)}</strong></div></div><div class="table-scroll"><table class="source-table"><thead><tr><th>CODE</th><th>QUOTED DESCRIPTION</th><th>QTY</th><th>UNIT</th><th>UNIT PRICE</th><th>LINE TOTAL</th><th>INC GST TOTAL</th><th>SOURCE</th></tr></thead><tbody>${q.items.length ? q.items.map(e=>`<tr><td><strong>${esc(e.code || '—')}</strong></td><td class="source-description">${esc(e.full_description || e.description)}${e.price_warning ? '<small class="incomplete">Quoted total needs checking</small>' : ''}</td><td>${esc(e.qty)}</td><td>${esc(e.unit)}</td><td>${cash(e.unit_price)}</td><td>${cash(e.total)}</td><td>${cash(e.inc_gst_total)}</td><td><small>${esc(e.source)}</small></td></tr>`).join('') : '<tr><td colspan="8" class="table-empty">No priced lines were detected. Add or correct lines in Comparison.</td></tr>'}</tbody></table></div></section>`);
+    cards.push(`<section class="panel quote-detail-card"><div class="quote-detail-head"><div><span class="heading-eyebrow">SUPPLIER ${qi+1} / SOURCE QUOTE</span><h2>${esc(q.name)}</h2><p class="source-file">${esc(file)}</p></div><a class="subtle-btn quote-compare-link" href="#comparison">View comparison →</a></div><div class="quote-meta">${metadata.map(([label,value])=>`<div><span>${esc(label)}</span><strong>${esc(value)}</strong></div>`).join('')}<div><span>Items</span><strong>${q.items.length}</strong></div></div><div class="quote-totals"><div><span>Product lines</span><strong>${cash(lineCost)}</strong></div><div><span>Freight</span><strong>${cash(q.freight||0)}</strong></div><div><span>Tax / GST</span><strong>${cash(q.tax||0)}</strong></div><div><span>Document total</span><strong>${cash(q.quoted_total)}</strong></div></div><div class="table-scroll"><table class="source-table"><thead><tr><th>CODE</th><th>QUOTED DESCRIPTION</th><th>QTY</th><th>UNIT</th><th>UNIT PRICE</th><th>LINE TOTAL</th><th>INC GST TOTAL</th><th>SOURCE</th><th>PRICE CHECK</th></tr></thead><tbody>${q.items.length ? q.items.map(e=>`<tr><td><strong>${esc(e.code || '—')}</strong></td><td class="source-description">${esc(e.full_description || e.description)}${e.price_warning ? '<small class="incomplete">Quoted total needs checking</small>' : ''}</td><td>${esc(e.qty)}</td><td>${esc(e.unit)}</td><td>${cash(e.unit_price)}</td><td>${cash(e.total)}</td><td>${cash(e.inc_gst_total)}</td><td><small>${esc(e.source)}</small></td><td>${verifyButton(q.id,e)}</td></tr>`).join('') : '<tr><td colspan="9" class="table-empty">No priced lines were detected. Add or correct lines in Comparison.</td></tr>'}</tbody></table></div></section>`);
     if (previewUrls.has(q.id)) cards[cards.length-1] = cards[cards.length-1].replace('<a class="subtle-btn quote-compare-link"', `<button class="subtle-btn preview-trigger" type="button" data-preview="${esc(q.id)}">▣ View original PDF</button><a class="subtle-btn quote-compare-link"`);
     if (q.raw_text) cards[cards.length-1] = cards[cards.length-1].replace(/<\/section>$/, `<details class="quote-raw"><summary>View all extracted document text</summary><pre>${esc(q.raw_text)}</pre></details></section>`);
   });
@@ -86,7 +87,7 @@ function render() {
     const flag = missing ? '<span class="flag missing">Missing quote</span>' : mismatch ? '<span class="flag review">Qty differs</span>' : unitMismatch ? '<span class="flag review">Unit differs</span>' : priceWarning ? '<span class="flag review">Total differs</span>' : row.confidence === 'review' ? '<span class="flag review">Check match</span>' : '<span class="flag ok">Matched</span>';
     const prices = state.quotes.map((q,qi) => {
       const entry=row.matches?.[qi],best=entry&&row.prices[qi]===row.best;
-      return `<td class="supplier-cell ${best?'supplier-best':''}">${entry ? `<div class="matched-line"><strong>${esc(entry.full_description || entry.description)}</strong><small>${esc(entry.code || 'No code')} · ${esc(entry.qty)} ${esc(entry.unit)} quoted</small><small>${esc(entry.source)}</small></div>` : '<div class="unmatched-line">No matching line in this quote</div>'}<div class="supplier-pricing"><label>Unit <span>$</span><input aria-label="${esc(q.name)} unit price for ${esc(row.description)}" type="number" min="0" step="0.01" value="${row.prices[qi] ?? ''}" placeholder="missing" data-gi="${gi}" data-qi="${qi}" data-field="price"></label><div>At required qty <strong>${cash(row.values[qi])}</strong></div></div></td>`;
+      return `<td class="supplier-cell ${best?'supplier-best':''}">${entry ? `<div class="matched-line"><strong>${esc(entry.full_description || entry.description)}</strong><small>${esc(entry.code || 'No code')} · ${esc(entry.qty)} ${esc(entry.unit)} quoted</small><small>${esc(entry.source)}</small>${verifyButton(q.id,entry)}</div>` : '<div class="unmatched-line">No matching line in this quote</div>'}<div class="supplier-pricing"><label>Unit <span>$</span><input aria-label="${esc(q.name)} unit price for ${esc(row.description)}" type="number" min="0" step="0.01" value="${row.prices[qi] ?? ''}" placeholder="missing" data-gi="${gi}" data-qi="${qi}" data-field="price"></label><div>At required qty <strong>${cash(row.values[qi])}</strong></div></div></td>`;
     }).join('');
     const actions = row.confidence === 'unmatched' || row.confidence === 'new' ? `<button class="subtle-btn match-btn" data-merge="${gi}" title="Match this line to another item">Match item</button>` : '';
     return `<tr><td class="item-cell"><input class="desc-input" aria-label="Description" value="${esc(row.description)}" data-gi="${gi}" data-field="description"><small>${esc(row.code || row.unit || '')} ${actions}</small></td><td><input class="qty-input" aria-label="Required quantity" type="number" min="0.01" step="any" value="${row.qty}" data-gi="${gi}" data-field="qty"></td><td><span>$</span><input class="baseline-input" aria-label="Baseline unit price" type="number" min="0" step="0.01" value="${row.baseline_price ?? ''}" data-gi="${gi}" data-field="baseline"></td>${prices}<td class="best-cell">${cash(row.best)}<small>${esc(row.winners.join(', '))}</small>${row.spread ? `<small>${cash(row.spread)} spread</small>` : ''}</td><td>${flag}</td></tr>`;
@@ -136,7 +137,7 @@ function renderPreviewEditor() {
     ['Current line cost', cash(lineCost)],
     ['Original PDF total', cash(quote.quoted_total)]
   ].map(([label,value]) => `<span>${esc(label)}<strong>${esc(value)}</strong></span>`).join('');
-  $('pdfPreviewLines').innerHTML = quote.items.length ? quote.items.map((entry, index) => `<tr data-line-id="${esc(entry.line_id)}"><td><label class="preview-field-label">Code<input aria-label="Line ${index+1} code" data-edit="code" value="${esc(entry.code || '')}"></label><label class="preview-field-label">Description<textarea aria-label="Line ${index+1} description" data-edit="description" rows="2">${esc(entry.full_description || entry.description)}</textarea></label></td><td><label class="preview-field-label">Qty<input aria-label="Line ${index+1} quantity" data-edit="qty" type="number" min="0.000001" step="any" value="${esc(entry.qty)}"></label><label class="preview-field-label">Unit<input aria-label="Line ${index+1} unit" data-edit="unit" value="${esc(entry.unit || 'ea')}"></label></td><td><label class="preview-field-label">Unit price<input aria-label="Line ${index+1} unit price" data-edit="unit_price" type="number" min="0" step="any" value="${esc(entry.unit_price)}"></label></td><td><label class="preview-field-label">Line total<input aria-label="Line ${index+1} line total" data-edit="total" type="number" min="0" step="any" value="${esc(entry.total)}"></label></td><td class="preview-source">${esc(entry.source || 'Manual addition')}${entry.edited ? '<small>Edited</small>' : ''}</td><td><button type="button" class="preview-remove" data-preview-action="remove" aria-label="Remove line ${index+1}">Remove</button></td></tr>`).join('') : '<tr class="preview-empty"><td colspan="6">No lines yet. Use Add line to enter one.</td></tr>';
+  $('pdfPreviewLines').innerHTML = quote.items.length ? quote.items.map((entry, index) => `<tr data-line-id="${esc(entry.line_id)}"><td><label class="preview-field-label">Code<input aria-label="Line ${index+1} code" data-edit="code" value="${esc(entry.code || '')}"></label><label class="preview-field-label">Description<textarea aria-label="Line ${index+1} description" data-edit="description" rows="2">${esc(entry.full_description || entry.description)}</textarea></label></td><td><label class="preview-field-label">Qty<input aria-label="Line ${index+1} quantity" data-edit="qty" type="number" min="0.000001" step="any" value="${esc(entry.qty)}"></label><label class="preview-field-label">Unit<input aria-label="Line ${index+1} unit" data-edit="unit" value="${esc(entry.unit || 'ea')}"></label></td><td><label class="preview-field-label">Unit price<input aria-label="Line ${index+1} unit price" data-edit="unit_price" type="number" min="0" step="any" value="${esc(entry.unit_price)}"></label></td><td><label class="preview-field-label">Line total<input aria-label="Line ${index+1} line total" data-edit="total" type="number" min="0" step="any" value="${esc(entry.total)}"></label></td><td class="preview-source">${esc(entry.source || 'Manual addition')}${entry.edited ? '<small>Edited</small>' : ''}</td><td>${verifyButton(quote.id,entry)}<button type="button" class="preview-remove" data-preview-action="remove" aria-label="Remove line ${index+1}">Remove</button></td></tr>`).join('') : '<tr class="preview-empty"><td colspan="6">No lines yet. Use Add line to enter one.</td></tr>';
 }
 function updateGroupsForLine(quoteIndex, lineId, entry) {
   state.groups = state.groups.filter(group => {
@@ -178,6 +179,8 @@ async function savePreviewChange(quote, lineId, field, value) {
     else entry[field] = field === 'code' ? value.toUpperCase() : value;
   }
   entry.edited = true;
+  entry.price_verified = false;
+  delete entry.price_verified_at;
   entry.price_warning = false;
   delete entry.inc_gst_unit;
   delete entry.inc_gst_total;
@@ -205,7 +208,27 @@ function openPdfPreview(id) {
   if (globalThis.pdfjsLib) renderPdfPreview(url, token);
   else { $('pdfPreviewPages').hidden = true; $('pdfPreviewFrame').hidden = false; $('pdfPreviewFrame').src = url; }
 }
-document.addEventListener('click', event => {
+async function togglePriceVerification(quoteId, lineId) {
+  const quoteIndex = state.quotes.findIndex(quote => quote.id === quoteId);
+  const quote = state.quotes[quoteIndex];
+  const entry = quote?.items.find(item => item.line_id === lineId);
+  if (!entry) return;
+  entry.price_verified = !entry.price_verified;
+  if (entry.price_verified) entry.price_verified_at = new Date().toISOString();
+  else delete entry.price_verified_at;
+  updateGroupsForLine(quoteIndex, lineId, entry);
+  const comparisonScroll = document.querySelector('.comparison-panel .table-scroll').scrollLeft;
+  const previewScroll = document.querySelector('.preview-lines-scroll').scrollTop;
+  await refresh();
+  document.querySelector('.comparison-panel .table-scroll').scrollLeft = comparisonScroll;
+  if (previewQuoteId === quoteId) {
+    renderPreviewEditor();
+    document.querySelector('.preview-lines-scroll').scrollTop = previewScroll;
+  }
+}
+document.addEventListener('click', async event => {
+  const verify = event.target.closest('[data-verify-line]');
+  if (verify) { event.preventDefault(); await togglePriceVerification(verify.dataset.verifyQuote, verify.dataset.verifyLine); return; }
   const button = event.target.closest('[data-preview]');
   if (button) {event.preventDefault(); openPdfPreview(button.dataset.preview)}
 });
@@ -332,6 +355,8 @@ $('comparisonTable').addEventListener('change',async e=>{
       const existing=sourceItem || {line_id:newId(),description:group.description,code:group.code,qty:group.qty,unit:group.unit,source:'Manual correction'};
       existing.unit_price=price; existing.total=price*existing.qty;
       existing.price_warning=false;
+      existing.price_verified=false;
+      delete existing.price_verified_at;
       group.matches[qi]=existing;
       if(!state.quotes[qi].items.includes(existing)) state.quotes[qi].items.push(existing);
     }
@@ -366,7 +391,7 @@ $('addRowBtn').addEventListener('click',async()=>{
 });
 $('addQuoteBtn').addEventListener('click',async()=>{
   const name=prompt('Supplier or subcontractor name');if(!name?.trim())return;
-  state.quotes.push({name:name.trim(),items:[]});await refresh();
+  state.quotes.push({id:newId(),name:name.trim(),items:[]});await refresh();
 });
 $('exportBtn').addEventListener('click',async()=>{
   const button=$('exportBtn');button.disabled=true;button.textContent='Preparing spreadsheet…';
