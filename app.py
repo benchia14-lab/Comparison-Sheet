@@ -11,9 +11,7 @@ from pathlib import Path
 import pymupdf as fitz
 import openpyxl
 from docx import Document
-from flask import Flask, jsonify, render_template, request, send_file
-from openpyxl.styles import Alignment, Font, PatternFill
-from openpyxl.utils import get_column_letter
+from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024
@@ -375,105 +373,6 @@ def compare_api():
     if groups is None:
         groups = build_groups(quotes, data.get('baseline', []))
     return jsonify(compare(quotes, groups))
-
-
-@app.post('/api/export')
-def export():
-    data = request.get_json(force=True)
-    quotes = data.get('quotes', [])
-    report = compare(quotes, data.get('groups', []))
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = 'Comparison'
-    ws.append(['QUOTE COMPARISON'])
-    ws.append(['Project', clean(data.get('project'))])
-    ws.append(['Prices are compared at the required quantity; missing lines are excluded from quote totals.'])
-    header = ['Code', 'Description', 'Required Qty', 'Unit', 'Baseline Unit', 'Baseline Total']
-    for name in report['names']:
-        header += [f'{name} Quoted Code', f'{name} Quoted Description', f'{name} Quoted Qty',
-                   f'{name} Quoted Unit', f'{name} Unit Price', f'{name} At Required Qty', f'{name} Source', f'{name} Price Verified']
-    header += ['Lowest Unit', 'Lowest Supplier', 'Price Spread at Required Qty', 'Review Flag']
-    ws.append(header)
-    for row in report['rows']:
-        values = [row.get('code'), row.get('description'), row.get('qty'), row.get('unit'),
-                  row.get('baseline_price'), row.get('baseline_total')]
-        for qi in range(len(quotes)):
-            match = row.get('matches', {}).get(str(qi)) or row.get('matches', {}).get(qi)
-            values += [match.get('code') if match else None, (match.get('full_description') or match.get('description')) if match else None,
-                       match.get('qty') if match else None, match.get('unit') if match else None,
-                       row['prices'][qi], row['values'][qi], match.get('source') if match else 'MISSING',
-                       ('Yes' if match.get('price_verified') else 'No') if match else None]
-        values += [row['best'], ', '.join(row['winners']), row['spread'], row.get('confidence')]
-        ws.append(values)
-    ws.append([])
-    ws.append(['QUOTE TOTALS', '', '', '', '', ''] + [x for i in range(len(quotes)) for x in ('', '', '', '', '', report['totals'][i], '', '')])
-    ws.append(['LINES COVERED', '', '', '', '', ''] + [x for i in range(len(quotes)) for x in ('', '', '', '', '', f"{report['covered'][i]}/{report['row_count']}", '', '')])
-    for cell in ws[4]:
-        cell.fill = PatternFill('solid', fgColor='203B38')
-        cell.font = Font(color='FFFFFF', bold=True)
-        cell.alignment = Alignment(wrap_text=True)
-    ws.freeze_panes = 'C5'
-    ws.auto_filter.ref = f'A4:{get_column_letter(ws.max_column)}{4 + len(report["rows"])}'
-    ws.column_dimensions['A'].width = 18
-    ws.column_dimensions['B'].width = 52
-    for col in range(3, ws.max_column + 1):
-        ws.column_dimensions[get_column_letter(col)].width = 17
-    for col, title in enumerate(header, 1):
-        if 'Description' in title:
-            ws.column_dimensions[get_column_letter(col)].width = 42
-        elif 'Source' in title:
-            ws.column_dimensions[get_column_letter(col)].width = 24
-    for row in ws.iter_rows(min_row=5, max_row=4 + len(report['rows'])):
-        for cell in row:
-            if isinstance(cell.value, (int, float)) and cell.column != 3:
-                cell.number_format = '#,##0.00;[Red](#,##0.00)'
-    detail = wb.create_sheet('Source lines')
-    detail.append(['Quote', 'Code', 'Description', 'Quoted Qty', 'Unit', 'Quoted Unit Price', 'Quoted Line Total', 'Source', 'Price Verified', 'Verified At (UTC)'])
-    for quote in quotes:
-        for entry in quote['items']:
-            detail.append([quote['name'], entry.get('code'), entry.get('full_description') or entry.get('description'), entry.get('qty'),
-                           entry.get('unit'), entry.get('unit_price'), entry.get('total'), entry.get('source'),
-                           'Yes' if entry.get('price_verified') else 'No', entry.get('price_verified_at')])
-    detail.freeze_panes = 'C2'
-    detail.auto_filter.ref = detail.dimensions
-    detail.column_dimensions['C'].width = 52
-    detail.column_dimensions['H'].width = 30
-    detail.column_dimensions['I'].width = 17
-    detail.column_dimensions['J'].width = 25
-    summary = wb.create_sheet('Financial summary', 0)
-    summary.append(['Project', clean(data.get('project'))])
-    summary.append(['Quoted line costs use required quantities. Enter tax, freight and discounts after checking quote terms.'])
-    summary.append(['Supplier', 'Price basis', 'Lines covered', 'Complete?', 'Line cost', 'Freight', 'Tax / GST', 'Discount', 'Total evaluated', 'Quoted total', 'Variance to quote', 'Gap to lowest complete'])
-    complete_totals = [report['landed'][i] for i, yes in enumerate(report['complete']) if yes]
-    lowest = min(complete_totals) if complete_totals else None
-    for i, quote in enumerate(quotes):
-        quoted_total = money(quote.get('quoted_total'))
-        summary.append([quote['name'], quote.get('price_basis', 'unspecified'),
-                        f"{report['covered'][i]}/{report['row_count']}",
-                        'Yes' if report['complete'][i] else 'No', report['totals'][i],
-                        money(quote.get('freight')) or 0, money(quote.get('tax')) or 0,
-                        money(quote.get('discount')) or 0, report['landed'][i], quoted_total,
-                        round(report['landed'][i] - quoted_total, 2) if quoted_total is not None else None,
-                        round(report['landed'][i] - lowest, 2) if report['complete'][i] and lowest is not None else None])
-    for cell in summary[3]:
-        cell.fill = PatternFill('solid', fgColor='203B38')
-        cell.font = Font(color='FFFFFF', bold=True)
-    summary.freeze_panes = 'B4'
-    summary.column_dimensions['A'].width = 25
-    for col in range(2, 13):
-        summary.column_dimensions[get_column_letter(col)].width = 19
-    # Prevent a supplier-controlled description or filename from becoming a
-    # spreadsheet formula when the exported workbook is opened.
-    for sheet in wb:
-        for row in sheet:
-            for cell in row:
-                if isinstance(cell.value, str) and cell.value.startswith(('=', '+', '-', '@')):
-                    cell.value = "'" + cell.value
-    buffer = io.BytesIO()
-    wb.save(buffer)
-    buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name='quote-comparison.xlsx',
-                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
 
 if __name__ == '__main__':

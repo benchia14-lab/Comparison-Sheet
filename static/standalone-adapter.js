@@ -179,29 +179,6 @@
     const landed=quotes.map((q,i)=>Math.round((totals[i]+(number(q.freight)||0)+(number(q.tax)||0)-(number(q.discount)||0))*100)/100);
     return {rows,names,totals:totals.map(x=>Math.round(x*100)/100),landed,covered,complete,row_count:rows.length};
   }
-  function exportBook(data){
-    const quotes=data.quotes||[],report=compare(quotes,data.groups||[]),book=XLSX.utils.book_new();
-    const completeTotals=report.landed.filter((_,i)=>report.complete[i]);
-    const lowest=completeTotals.length?Math.min(...completeTotals):null;
-    const summary=[['Project',clean(data.project)],['Quoted line costs use required quantities. Check tax, freight and discounts against quote terms.'],['Supplier','Price basis','Lines covered','Complete?','Line cost','Freight','Tax / GST','Discount','Total evaluated','Quoted total','Variance to quote','Gap to lowest complete']];
-    quotes.forEach((q,i)=>summary.push([q.name,q.price_basis||'unspecified',`${report.covered[i]}/${report.row_count}`,report.complete[i]?'Yes':'No',report.totals[i],number(q.freight)||0,number(q.tax)||0,number(q.discount)||0,report.landed[i],q.quoted_total??null,q.quoted_total!=null?Math.round((report.landed[i]-q.quoted_total)*100)/100:null,report.complete[i]&&lowest!=null?Math.round((report.landed[i]-lowest)*100)/100:null]));
-    const s=XLSX.utils.aoa_to_sheet(summary);s['!cols']=[{wch:28},...Array.from({length:11},()=>({wch:19}))];XLSX.utils.book_append_sheet(book,s,'Financial summary');
-    const header=['Code','Description','Required Qty','Unit','Baseline Unit','Baseline Total'];
-    quotes.forEach(q=>header.push(`${q.name} Quoted Code`,`${q.name} Quoted Description`,`${q.name} Quoted Qty`,`${q.name} Quoted Unit`,`${q.name} Unit Price`,`${q.name} At Required Qty`,`${q.name} Source`,`${q.name} Price Verified`));
-    header.push('Lowest Unit','Lowest Supplier','Price Spread at Required Qty','Review Flag');
-    const matrix=[['QUOTE COMPARISON'],['Project',clean(data.project)],['Missing lines are excluded from quote totals.'],header];
-    report.rows.forEach(row=>{
-      const values=[row.code,row.description,row.qty,row.unit,row.baseline_price,row.baseline_total];
-      quotes.forEach((q,qi)=>{const e=row.matches?.[qi];values.push(e?.code||null,e?.full_description||e?.description||null,e?.qty??null,e?.unit||null,row.prices[qi],row.values[qi],e?.source||'MISSING',e?(e.price_verified?'Yes':'No'):null)});
-      values.push(row.best,row.winners.join(', '),row.spread,row.confidence);matrix.push(values);
-    });
-    matrix.push([],['QUOTE TOTALS','','','','','',...report.totals.flatMap(x=>['','','','','',x,'',''])],['LINES COVERED','','','','','',...report.covered.flatMap(x=>['','','','','',`${x}/${report.row_count}`,'',''])]);
-    const c=XLSX.utils.aoa_to_sheet(matrix);c['!cols']=header.map((title,i)=>({wch:i===1||title.includes('Description')?42:title.includes('Source')?24:17}));XLSX.utils.book_append_sheet(book,c,'Comparison');
-    const sources=[['Quote','Code','Description','Quoted Qty','Unit','Quoted Unit Price','Quoted Line Total','Source','Price Verified','Verified At (UTC)']];
-    quotes.forEach(q=>q.items.forEach(e=>sources.push([q.name,e.code,e.full_description||e.description,e.qty,e.unit,e.unit_price,e.total,e.source,e.price_verified?'Yes':'No',e.price_verified_at||null])));
-    const d=XLSX.utils.aoa_to_sheet(sources);d['!cols']=[{wch:24},{wch:18},{wch:52},...Array.from({length:4},()=>({wch:17})),{wch:30},{wch:17},{wch:25}];XLSX.utils.book_append_sheet(book,d,'Source lines');
-    return XLSX.write(book,{type:'array',bookType:'xlsx'});
-  }
   const json=value=>new Response(JSON.stringify(value),{status:200,headers:{'Content-Type':'application/json'}});
   window.fetch=async(input,init={})=>{
     const path=typeof input==='string'?input:new URL(input.url).pathname;
@@ -212,10 +189,6 @@
     }
     if(path==='/api/compare'){
       const data=JSON.parse(init.body);return json(compare(data.quotes||[],data.groups??buildGroups(data.quotes||[],data.baseline||[])));
-    }
-    if(path==='/api/export'){
-      const buffer=exportBook(JSON.parse(init.body));
-      return new Response(new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),{status:200});
     }
     return originalFetch(input,init);
   };

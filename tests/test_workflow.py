@@ -1,14 +1,31 @@
 import io
+import json
+import shutil
+import subprocess
+import tempfile
 import unittest
+from pathlib import Path
 
 import pymupdf as fitz
 import openpyxl
 
-from app import app, build_groups, compare, parse_file, parse_pdf_text
+from app import build_groups, compare, parse_file, parse_pdf_text
+
+HERE = Path(__file__).resolve().parent
+
+
+def export_workbook(project, quotes, report, generated_at='2026-10-16T09:00:00'):
+    """Build the browser export with Node and return it opened with cached formula results."""
+    payload = json.dumps({'project': project, 'quotes': quotes, 'report': report, 'generatedAt': generated_at})
+    with tempfile.TemporaryDirectory() as folder:
+        out = Path(folder) / 'export.xlsx'
+        subprocess.run(['node', str(HERE / 'export_workbook.js'), str(out)], input=payload.encode(), check=True)
+        data = out.read_bytes()
+    return openpyxl.load_workbook(io.BytesIO(data), data_only=True), openpyxl.load_workbook(io.BytesIO(data))
 
 
 class WorkflowTests(unittest.TestCase):
-    def test_csv_matching_financials_and_export(self):
+    def test_csv_matching_and_financials(self):
         a = b'Code,Description,Qty,Unit Price,Total\nSIN01,Caroma handwash basin,2,220,440\nTAP01,Urbane mixer,1,100,100\n'
         b = b'SKU,Item Description,Quantity,Unit Rate,Amount\nSIN01,Handwash basin Caroma,2,200,400\nTAP01,Mixer Urbane,1,120,120\n'
         items_a, _ = parse_file('a.csv', a)
@@ -23,16 +40,46 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(report['totals'], [540, 520])
         self.assertEqual(report['landed'], [590, 515])
         self.assertEqual(report['complete'], [True, True])
-        with app.test_client() as client:
-            response = client.post('/api/export', json={'project': 'Test', 'quotes': quotes, 'groups': groups})
-        self.assertEqual(response.status_code, 200)
-        book = openpyxl.load_workbook(io.BytesIO(response.data), data_only=True)
-        self.assertEqual(book.sheetnames, ['Financial summary', 'Comparison', 'Source lines'])
-        self.assertEqual(book['Financial summary']['I5'].value, 515)
-        self.assertEqual(book['Comparison']['N5'].value, 'Yes')
-        self.assertEqual(book['Source lines']['I2'].value, 'Yes')
-        self.assertEqual(book['Source lines']['J2'].value, '2026-10-16T12:00:00.000Z')
-        self.assertEqual(book['Source lines']['I4'].value, 'No')
+
+    @unittest.skipUnless(shutil.which('node'), 'Node.js is needed to run the browser workbook export')
+    def test_export_workbook_layout(self):
+        a = b'Code,Description,Qty,Unit Price,Total\nSIN01,Caroma handwash basin,2,220,440\nTAP01,Urbane mixer,1,100,100\n'
+        b = b'SKU,Item Description,Quantity,Unit Rate,Amount\nSIN01,Handwash basin Caroma,2,200,400\nTAP01,Mixer Urbane,1,120,120\n'
+        items_a, _ = parse_file('a.csv', a)
+        items_b, _ = parse_file('b.csv', b)
+        items_a[0]['price_verified'] = True
+        quotes = [{'name': 'A', 'items': items_a, 'freight': 30, 'tax': 20, 'quote_number': '1001',
+                   'quote_date': '01/10/2026', 'expiry_date': '31/10/2026', 'price_basis': 'ex GST', 'source_file': 'a.csv'},
+                  {'name': 'B: Plumbing/Supply', 'items': items_b, 'freight': 5, 'discount': 10,
+                   'expiry_date': '01/10/2026', 'quoted_total': 515}]
+        report = compare(quotes, build_groups(quotes, []))
+        values, formulas = export_workbook('Test project', quotes, report)
+        self.assertEqual(values.sheetnames, ['Summary', 'Comparison', 'A', 'B Plumbing Supply'])
+        summary = values['Summary']
+        self.assertEqual([c.value for c in summary[9]][:3], ['Rank', 'Supplier', 'Quote no.'])
+        self.assertEqual(summary['B10'].value, 'A')
+        self.assertEqual(summary['C10'].value, '1001')
+        self.assertEqual(summary['D10'].value.date().isoformat(), '2026-10-01')
+        self.assertEqual(summary['F10'].value, 'Valid')
+        self.assertEqual(summary['F11'].value, 'Expired')
+        self.assertEqual((summary['A11'].value, summary['M11'].value, summary['O11'].value), (1, 515, 0))
+        self.assertEqual((summary['A10'].value, summary['M10'].value, summary['O10'].value), (2, 590, 75))
+        self.assertEqual(summary['H5'].value, 515)  # lowest complete quote tile
+        self.assertEqual(formulas['Summary']['M10'].value, '=I10+J10+K10-L10')
+        comparison = values['Comparison']
+        self.assertEqual([c.value for c in comparison[6]][:9],
+                         ['#', 'Description', 'Code', 'Req. qty', 'Unit', 'Unit price', 'Total at req. qty', 'Unit price', 'Total at req. qty'])
+        self.assertEqual((comparison['B7'].value, comparison['F7'].value, comparison['G7'].value, comparison['H7'].value), ('Caroma handwash basin', 220, 440, 200))
+        self.assertEqual(comparison['K7'].value, 'B: Plumbing/Supply')
+        self.assertEqual(formulas['Comparison']['G7'].value, '=D7*F7')
+        self.assertEqual(comparison['F7'].comment.text, 'Price verified against the source quote')
+        quote = values['A']
+        self.assertEqual((quote['C4'].value, quote['C5'].value, quote['C9'].value, quote['C10'].value), ('A', '1001', 'ex GST', 'a.csv'))
+        self.assertEqual([c.value for c in quote[14]][:4], ['#', 'Code', 'Description', 'Qty'])
+        self.assertEqual((quote['B15'].value, quote['F15'].value, quote['G15'].value, quote['J15'].value), ('SIN01', 220, 440, 'Verified'))
+        self.assertEqual(quote['J16'].value, 'Not checked')
+        self.assertEqual(quote['H10'].value, 590)
+        self.assertEqual(values['B Plumbing Supply']['H12'].value, 0)  # matches the document total
 
     def test_real_quote_layouts_match_and_reconcile(self):
         benton = '''BENTONS DERRIMUT
@@ -75,7 +122,7 @@ Document Total     7,927.00      792.70     8,719.70'''
         self.assertEqual(report['covered'], [1, 1])
         self.assertEqual(report['complete'], [False, False])
 
-    def test_edited_line_total_reconciles_with_comparison_and_export(self):
+    def test_edited_line_total_reconciles_with_comparison(self):
         # A manually entered line total can imply a unit rate with more than two decimals.
         quotes = [{'name': 'Edited supplier', 'items': [{'description': 'Custom bracket', 'code': 'BR1',
                    'qty': 3, 'unit': 'ea', 'unit_price': 33.333333, 'total': 100,
@@ -83,11 +130,6 @@ Document Total     7,927.00      792.70     8,719.70'''
         groups = build_groups(quotes, [])
         report = compare(quotes, groups)
         self.assertEqual(report['totals'], [100])
-        with app.test_client() as client:
-            response = client.post('/api/export', json={'quotes': quotes, 'groups': groups})
-        book = openpyxl.load_workbook(io.BytesIO(response.data), data_only=True)
-        self.assertEqual(book['Financial summary']['I4'].value, 100)
-        self.assertEqual(book['Source lines']['G2'].value, 100)
 
     def test_pdf_line_extraction(self):
         pdf = fitz.open()
