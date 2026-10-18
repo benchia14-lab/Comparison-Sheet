@@ -22,3 +22,6 @@ h1,h2,h3,.summary-value,.brand{font-variant-numeric:lining-nums}.subtle-btn{whit
 .matrix-table td{padding-top:10px;padding-bottom:10px}.matched-line,.unmatched-line{min-height:0;margin-bottom:8px}.supplier-pricing{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px}.supplier-pricing strong{font-size:12px;color:var(--ink)}
 .matrix-table .supplier-best{background:#eef8f1;box-shadow:inset 3px 0 0 #2f8a5c}.supplier-best .supplier-pricing strong{color:#1f7a4d}.cheapest-tag{display:inline-block;margin-bottom:6px;padding:3px 7px;border-radius:10px;background:#d9f0e1;color:#1f7a4d;font-size:9px;font-weight:700;letter-spacing:.3px}
 .matrix-table .best-cell{color:#1f7a4d}
+/* Financial summary: the cheapest complete quote is marked green. */
+#financialTable tr.fin-best td{background:#eef8f1}#financialTable tr.fin-best td:first-child{box-shadow:inset 3px 0 0 #2f8a5c}#financialTable .cheapest-tag{margin:4px 0 0 8px;vertical-align:middle}#financialTable td strong{display:inline}#financialTable td strong+small,#financialTable td .cheapest-tag+small{display:block}
+#financialTable .cheapest-value{color:#1f7a4d;font-weight:800}#financialTable .cheapest-value::after{content:" ✓";font-size:10px}#financialTable .cheapest-note{color:#1f7a4d;font-weight:700}
