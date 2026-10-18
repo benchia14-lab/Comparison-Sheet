@@ -137,7 +137,7 @@
     const firstSupplierCol = itemCols.length + 1;
     const supplierCol = qi => firstSupplierCol + qi * 2;
     const resultCol = firstSupplierCol + quotes.length * 2;
-    const lastCompCol = resultCol + 3;
+    const lastCompCol = resultCol + 2;
     banner(comparison, lastCompCol, `${projectName} · Price comparison`,
       `Unit prices compared at the required quantity · Lowest price per line highlighted · Exported ${stamp}`, brandLogo);
     comparison.mergeCells(4, 1, 5, itemCols.length);
@@ -153,7 +153,7 @@
     comparison.mergeCells(4, resultCol, 5, lastCompCol);
     setCell(comparison, comparison.getCell(4, resultCol).address, 'RESULT', { fill: LIGHT, font: { bold: true, color: GREY, size: 9 }, align: 'center' });
     const compHeader = 6;
-    headerRow(comparison, compHeader, [...itemCols, ...quotes.flatMap(() => ['Unit price', 'Total at req. qty']), 'Lowest unit', 'Lowest supplier', 'Spread', 'Status']);
+    headerRow(comparison, compHeader, [...itemCols, ...quotes.flatMap(() => ['Unit price', 'Total at req. qty']), 'Lowest unit', 'Lowest supplier', 'Status']);
     const firstItemRow = compHeader + 1;
     rows.forEach((row, ri) => {
       const r = firstItemRow + ri, qty = num(row.qty) ?? 1;
@@ -185,8 +185,7 @@
       });
       setCell(comparison, comparison.getCell(r, resultCol).address, row.best, { numFmt: MONEY, font: { bold: true } });
       setCell(comparison, comparison.getCell(r, resultCol + 1).address, (row.winners || []).join(', ') || '—', { wrap: true });
-      setCell(comparison, comparison.getCell(r, resultCol + 2).address, row.spread, { numFmt: MONEY, font: { color: GREY } });
-      badge(comparison.getCell(r, resultCol + 3), ...rowStatus(row, quotes));
+      badge(comparison.getCell(r, resultCol + 2), ...rowStatus(row, quotes));
       comparison.getRow(r).height = Math.max(20, Math.ceil(text(description).length / 45) * 14);
     });
     const lastItemRow = firstItemRow + rows.length - 1;
@@ -222,7 +221,7 @@
     comparison.getRow(totalsStart + 4).height = 22;
     [6, 40, 14, 9, 8, ...(hasBaseline ? [13, 14] : [])].forEach((w, i) => { comparison.getColumn(i + 1).width = w; });
     quotes.forEach((_, qi) => { comparison.getColumn(supplierCol(qi)).width = 13; comparison.getColumn(supplierCol(qi) + 1).width = 16; });
-    [12, 20, 12, 14].forEach((w, i) => { comparison.getColumn(resultCol + i).width = w; });
+    [12, 20, 14].forEach((w, i) => { comparison.getColumn(resultCol + i).width = w; });
     comparison.views = [{ state: 'frozen', xSplit: 2, ySplit: compHeader, showGridLines: false }];
     if (rows.length) comparison.autoFilter = { from: { row: compHeader, column: 1 }, to: { row: lastItemRow, column: lastCompCol } };
     pageSetup(comparison, true, `${compHeader - 2}:${compHeader}`);

@@ -27,6 +27,10 @@
 
 h1,h2,h3,.summary-value,.view-intro h2{font-family:Raleway,Arial,sans-serif}h1{font-weight:700;letter-spacing:-.3px}h2{letter-spacing:-.2px}
 h1,h2,h3,.summary-value,.brand{font-variant-numeric:lining-nums}.subtle-btn{white-space:nowrap}.brand{padding:4px 14px}
+/* Compact comparison cells: description, unit price and total only; the cheapest price is marked green. */
+.matrix-table td{padding-top:10px;padding-bottom:10px}.matched-line,.unmatched-line{min-height:0;margin-bottom:8px}.supplier-pricing{display:flex;align-items:center;justify-content:space-between;gap:8px;padding-top:8px}.supplier-pricing strong{font-size:12px;color:var(--ink)}
+.matrix-table .supplier-best{background:#eef8f1;box-shadow:inset 3px 0 0 #2f8a5c}.supplier-best .supplier-pricing strong{color:#1f7a4d}.cheapest-tag{display:inline-block;margin-bottom:6px;padding:3px 7px;border-radius:10px;background:#d9f0e1;color:#1f7a4d;font-size:9px;font-weight:700;letter-spacing:.3px}
+.matrix-table .best-cell{color:#1f7a4d}
 
 </style>
 </head>
@@ -63,7 +67,7 @@ h1,h2,h3,.summary-value,.brand{font-variant-numeric:lining-nums}.subtle-btn{whit
         </section>
 
         <section class="workspace-view" id="comparison" aria-label="Comparison" hidden>
-        <section class="panel comparison-panel"><div class="panel-heading comparison-heading"><div><div class="heading-eyebrow">03 / ANALYSE</div><h2>Item-by-item comparison</h2><p>Items run down the page; each supplier shows its matched line and price. Verify price records your source check separately from the item match.</p></div><div class="table-actions"><button class="subtle-btn" id="addRowBtn">+ Add line</button><button class="subtle-btn" id="addQuoteBtn">+ Add quote</button></div></div><div class="notice" id="coverageNotice" hidden></div><div class="table-scroll"><table id="comparisonTable" class="matrix-table"><thead><tr><th>ITEM / DESCRIPTION</th><th>REQ. QTY</th><th>BASELINE</th><th>SUPPLIER QUOTES</th><th>LOWEST</th><th>FLAG</th></tr></thead><tbody><tr class="placeholder-row"><td colspan="6"><div class="table-empty">Upload two or more quotes to compare pricing across suppliers.<small>You can also add rows and quotes manually.</small></div></td></tr></tbody></table></div></section>
+        <section class="panel comparison-panel"><div class="panel-heading comparison-heading"><div><div class="heading-eyebrow">03 / ANALYSE</div><h2>Item-by-item comparison</h2><p>Each row is one item. The cheapest supplier price is marked in green. Check prices against the source quotes on the Quotes page.</p></div><div class="table-actions"><button class="subtle-btn" id="addRowBtn">+ Add line</button><button class="subtle-btn" id="addQuoteBtn">+ Add quote</button></div></div><div class="notice" id="coverageNotice" hidden></div><div class="table-scroll"><table id="comparisonTable" class="matrix-table"><thead><tr><th>ITEM / DESCRIPTION</th><th>REQ. QTY</th><th>BASELINE</th><th>SUPPLIER QUOTES</th><th>LOWEST</th><th>FLAG</th></tr></thead><tbody><tr class="placeholder-row"><td colspan="6"><div class="table-empty">Upload two or more quotes to compare pricing across suppliers.<small>You can also add rows and quotes manually.</small></div></td></tr></tbody></table></div></section>
         <section class="panel financial-panel"><div class="panel-heading"><div><div class="heading-eyebrow">03 / EVALUATE</div><h2>Financial summary</h2><p>Compare ex-GST lines on the same basis, then include freight, tax and discounts. Check the evaluated total against the quote.</p></div></div><div class="table-scroll"><table id="financialTable"><thead><tr><th>SUPPLIER</th><th>LINE COVERAGE</th><th>LINE COST</th><th>FREIGHT</th><th>TAX / GST</th><th>DISCOUNT</th><th>TOTAL EVALUATED</th><th>QUOTED TOTAL</th><th>GAP TO LOWEST</th></tr></thead><tbody><tr><td colspan="9" class="table-empty">Add quotes to see the financial summary.</td></tr></tbody></table></div></section>
         </section>
         <footer>QuoteLine compares extracted line items. Confirm scope, inclusions, taxes and freight before awarding work.</footer>
@@ -221,7 +225,7 @@ h1,h2,h3,.summary-value,.brand{font-variant-numeric:lining-nums}.subtle-btn{whit
     const firstSupplierCol = itemCols.length + 1;
     const supplierCol = qi => firstSupplierCol + qi * 2;
     const resultCol = firstSupplierCol + quotes.length * 2;
-    const lastCompCol = resultCol + 3;
+    const lastCompCol = resultCol + 2;
     banner(comparison, lastCompCol, `${projectName} · Price comparison`,
       `Unit prices compared at the required quantity · Lowest price per line highlighted · Exported ${stamp}`, brandLogo);
     comparison.mergeCells(4, 1, 5, itemCols.length);
@@ -237,7 +241,7 @@ h1,h2,h3,.summary-value,.brand{font-variant-numeric:lining-nums}.subtle-btn{whit
     comparison.mergeCells(4, resultCol, 5, lastCompCol);
     setCell(comparison, comparison.getCell(4, resultCol).address, 'RESULT', { fill: LIGHT, font: { bold: true, color: GREY, size: 9 }, align: 'center' });
     const compHeader = 6;
-    headerRow(comparison, compHeader, [...itemCols, ...quotes.flatMap(() => ['Unit price', 'Total at req. qty']), 'Lowest unit', 'Lowest supplier', 'Spread', 'Status']);
+    headerRow(comparison, compHeader, [...itemCols, ...quotes.flatMap(() => ['Unit price', 'Total at req. qty']), 'Lowest unit', 'Lowest supplier', 'Status']);
     const firstItemRow = compHeader + 1;
     rows.forEach((row, ri) => {
       const r = firstItemRow + ri, qty = num(row.qty) ?? 1;
@@ -269,8 +273,7 @@ h1,h2,h3,.summary-value,.brand{font-variant-numeric:lining-nums}.subtle-btn{whit
       });
       setCell(comparison, comparison.getCell(r, resultCol).address, row.best, { numFmt: MONEY, font: { bold: true } });
       setCell(comparison, comparison.getCell(r, resultCol + 1).address, (row.winners || []).join(', ') || '—', { wrap: true });
-      setCell(comparison, comparison.getCell(r, resultCol + 2).address, row.spread, { numFmt: MONEY, font: { color: GREY } });
-      badge(comparison.getCell(r, resultCol + 3), ...rowStatus(row, quotes));
+      badge(comparison.getCell(r, resultCol + 2), ...rowStatus(row, quotes));
       comparison.getRow(r).height = Math.max(20, Math.ceil(text(description).length / 45) * 14);
     });
     const lastItemRow = firstItemRow + rows.length - 1;
@@ -306,7 +309,7 @@ h1,h2,h3,.summary-value,.brand{font-variant-numeric:lining-nums}.subtle-btn{whit
     comparison.getRow(totalsStart + 4).height = 22;
     [6, 40, 14, 9, 8, ...(hasBaseline ? [13, 14] : [])].forEach((w, i) => { comparison.getColumn(i + 1).width = w; });
     quotes.forEach((_, qi) => { comparison.getColumn(supplierCol(qi)).width = 13; comparison.getColumn(supplierCol(qi) + 1).width = 16; });
-    [12, 20, 12, 14].forEach((w, i) => { comparison.getColumn(resultCol + i).width = w; });
+    [12, 20, 14].forEach((w, i) => { comparison.getColumn(resultCol + i).width = w; });
     comparison.views = [{ state: 'frozen', xSplit: 2, ySplit: compHeader, showGridLines: false }];
     if (rows.length) comparison.autoFilter = { from: { row: compHeader, column: 1 }, to: { row: lastItemRow, column: lastCompCol } };
     pageSetup(comparison, true, `${compHeader - 2}:${compHeader}`);
@@ -757,11 +760,13 @@ function render() {
     const priceWarning = row.prices.some((p,i) => p != null && row.matches?.[i]?.price_warning);
     const flag = missing ? '<span class="flag missing">Missing quote</span>' : mismatch ? '<span class="flag review">Qty differs</span>' : unitMismatch ? '<span class="flag review">Unit differs</span>' : priceWarning ? '<span class="flag review">Total differs</span>' : row.confidence === 'review' ? '<span class="flag review">Check match</span>' : '<span class="flag ok">Matched</span>';
     const prices = state.quotes.map((q,qi) => {
-      const entry=row.matches?.[qi],best=entry&&row.prices[qi]===row.best;
-      return `<td class="supplier-cell ${best?'supplier-best':''}">${entry ? `<div class="matched-line"><strong>${esc(entry.full_description || entry.description)}</strong><small>${esc(entry.code || 'No code')} · ${esc(entry.qty)} ${esc(entry.unit)} quoted</small><small>${esc(entry.source)}</small>${verifyButton(q.id,entry)}</div>` : '<div class="unmatched-line">No matching line in this quote</div>'}<div class="supplier-pricing"><label>Unit <span>$</span><input aria-label="${esc(q.name)} unit price for ${esc(row.description)}" type="number" min="0" step="0.01" value="${row.prices[qi] ?? ''}" placeholder="missing" data-gi="${gi}" data-qi="${qi}" data-field="price"></label><div>At required qty <strong>${cash(row.values[qi])}</strong></div></div></td>`;
+      // Mark the cheapest price only when there is something to compare it with.
+      const best=row.prices[qi]!=null&&row.prices[qi]===row.best&&row.prices.filter(p=>p!=null).length>1;
+      const entry=row.matches?.[qi];
+      return `<td class="supplier-cell ${best?'supplier-best':''}">${best?'<span class="cheapest-tag">✓ Cheapest</span>':''}${entry ? `<div class="matched-line"><strong>${esc(entry.full_description || entry.description)}</strong></div>` : '<div class="unmatched-line">No matching line in this quote</div>'}<div class="supplier-pricing"><label>Unit <span>$</span><input aria-label="${esc(q.name)} unit price for ${esc(row.description)}" type="number" min="0" step="0.01" value="${row.prices[qi] ?? ''}" placeholder="missing" data-gi="${gi}" data-qi="${qi}" data-field="price"></label><strong title="Total at the required quantity">${cash(row.values[qi])}</strong></div></td>`;
     }).join('');
     const actions = row.confidence === 'unmatched' || row.confidence === 'new' ? `<button class="subtle-btn match-btn" data-merge="${gi}" title="Match this line to another item">Match item</button>` : '';
-    return `<tr><td class="item-cell"><input class="desc-input" aria-label="Description" value="${esc(row.description)}" data-gi="${gi}" data-field="description"><small>${esc(row.code || row.unit || '')} ${actions}</small></td><td><input class="qty-input" aria-label="Required quantity" type="number" min="0.01" step="any" value="${row.qty}" data-gi="${gi}" data-field="qty"></td><td><span>$</span><input class="baseline-input" aria-label="Baseline unit price" type="number" min="0" step="0.01" value="${row.baseline_price ?? ''}" data-gi="${gi}" data-field="baseline"></td>${prices}<td class="best-cell">${cash(row.best)}<small>${esc(row.winners.join(', '))}</small>${row.spread ? `<small>${cash(row.spread)} spread</small>` : ''}</td><td>${flag}</td></tr>`;
+    return `<tr><td class="item-cell"><input class="desc-input" aria-label="Description" value="${esc(row.description)}" data-gi="${gi}" data-field="description"><small>${esc(row.code || row.unit || '')} ${actions}</small></td><td><input class="qty-input" aria-label="Required quantity" type="number" min="0.01" step="any" value="${row.qty}" data-gi="${gi}" data-field="qty"></td><td><span>$</span><input class="baseline-input" aria-label="Baseline unit price" type="number" min="0" step="0.01" value="${row.baseline_price ?? ''}" data-gi="${gi}" data-field="baseline"></td>${prices}<td class="best-cell">${cash(row.best)}<small>${esc(row.winners.join(', '))}</small></td><td>${flag}</td></tr>`;
   }).join('');
 }
 
