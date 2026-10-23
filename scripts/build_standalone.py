@@ -41,6 +41,9 @@ def page():
     css = (ROOT / 'static/style.css').read_text()
     # Neither single-file page requests a Google font, so both look the same offline.
     css = css[css.index(':root'):]
+    for name in ('favicon.png', 'axis-logo.png'):
+        data = base64.b64encode((ROOT / 'static' / name).read_bytes()).decode()
+        html = html.replace(f'"/static/{name}"', f'"data:image/png;base64,{data}"')
     return html.replace('<link rel="stylesheet" href="/static/style.css">', f'<style>\n{css}\n</style>')
 
 
@@ -83,6 +86,8 @@ def main():
     parts.append("<script>pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([document.getElementById('pdf-worker').textContent], {type:'application/javascript'}));</script>")
     parts += app_scripts()
     html = with_scripts(html, parts)
+    # Opened offline, so no web font: headings fall back to Arial.
+    html = re.sub(r'\s*<link rel="stylesheet" href="https://fonts\.googleapis\.com[^"]*">', '', html)
     html = html.replace('QuoteLine · Comparison workspace', 'QuoteLine · Standalone comparison workspace')
     output = ROOT / 'QuoteLine-Standalone.html'
     output.write_text(html)

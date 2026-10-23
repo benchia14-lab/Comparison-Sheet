@@ -3,10 +3,11 @@
   if (typeof module === 'object' && module.exports) module.exports = factory;
   else root.QuoteLineWorkbook = factory(root.ExcelJS);
 })(typeof self !== 'undefined' ? self : this, ExcelJS => {
-  const RED = 'C8102E', INK = '1F1F1F', GREY = '6B6B6B', LIGHT = 'F4F4F4', LINE = 'DDDDDD', WHITE = 'FFFFFF';
+  // Axis Services Group brand: PMS 877 grey (#8A8D8F), darker shade for filled headers, Arial text.
+  const BRAND = '8A8D8F', BRAND_STRONG = '6B6E70', INK = '1F1F1F', GREY = '6F7173', LIGHT = 'F3F4F4', LINE = 'DDDEDF', WHITE = 'FFFFFF';
   const GOOD = ['E7F5EB', '2F8A5C'], WARN = ['FFF2D9', 'AD7625'], BAD = ['FCECEB', 'B4433A'];
   const MONEY = '$#,##0.00;[Red]-$#,##0.00', DATE = 'dd mmm yyyy', QTY = '#,##0.##';
-  const FONT = 'Calibri';
+  const FONT = 'Arial';
 
   const fill = argb => ({ type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF' + argb } });
   const font = (extra = {}) => ({ name: FONT, size: 10, color: { argb: 'FF' + INK }, ...extra, ...(extra.color ? { color: { argb: 'FF' + extra.color } } : {}) });
@@ -48,25 +49,33 @@
     if (style.border) cell.border = style.border;
     return cell;
   }
-  function banner(ws, lastCol, title, subtitle) {
+  function banner(ws, lastCol, title, subtitle, logo) {
     ws.mergeCells(1, 1, 1, lastCol);
     ws.mergeCells(2, 1, 2, lastCol);
-    setCell(ws, 'A1', title, { fill: RED, font: { size: 16, bold: true, color: WHITE }, indent: 1 });
-    setCell(ws, 'A2', subtitle, { fill: LIGHT, font: { size: 10, color: GREY }, indent: 1 });
-    ws.getRow(1).height = 34;
-    ws.getRow(2).height = 20;
+    const brandLine = { style: 'thick', color: { argb: 'FF' + BRAND } };
+    setCell(ws, 'A1', title, { font: { size: 18, bold: true }, border: { top: brandLine } });
+    setCell(ws, 'A2', subtitle, { font: { size: 10, color: GREY }, border: { bottom: { style: 'thin', color: { argb: 'FF' + BRAND } } } });
+    ws.getCell('A1').alignment = { vertical: 'bottom' };
+    ws.getCell('A2').alignment = { vertical: 'top' };
+    ws.getRow(1).height = 42;
+    ws.getRow(2).height = 24;
+    // The supplied logo, unscaled in proportion, at the top right with clear space around it.
+    if (logo) {
+      const height = 64, width = Math.round(height * logo.width / logo.height);
+      ws.addImage(logo.id, { tl: { col: lastCol - 1, row: 0.12 }, ext: { width, height }, editAs: 'oneCell' });
+    }
   }
   const LEFT_HEADERS = new Set(['Description', 'Code', 'Supplier', 'Source', 'Lowest supplier']);
   function headerRow(ws, rowNumber, titles, firstCol = 1) {
     titles.forEach((title, i) => setCell(ws, ws.getCell(rowNumber, firstCol + i).address, title, {
-      fill: RED, font: { bold: true, color: WHITE }, wrap: true, align: LEFT_HEADERS.has(title) ? 'left' : 'center',
-      border: { bottom: { style: 'medium', color: { argb: 'FFA00D25' } } }
+      fill: BRAND_STRONG, font: { bold: true, color: WHITE }, wrap: true, align: LEFT_HEADERS.has(title) ? 'left' : 'center',
+      border: { bottom: { style: 'medium', color: { argb: 'FF55585A' } } }
     }));
     ws.getRow(rowNumber).height = 32;
   }
   function sectionTitle(ws, rowNumber, label, lastCol) {
     ws.mergeCells(rowNumber, 1, rowNumber, lastCol);
-    setCell(ws, ws.getCell(rowNumber, 1).address, label.toUpperCase(), { font: { bold: true, size: 9, color: RED } });
+    setCell(ws, ws.getCell(rowNumber, 1).address, label.toUpperCase(), { font: { bold: true, size: 9, color: BRAND_STRONG } });
     ws.getRow(rowNumber).height = 22;
   }
   function badge(cell, label, colours) {
@@ -100,7 +109,7 @@
     return ['Matched', GOOD];
   }
 
-  async function build({ project, quotes = [], report, generatedAt = new Date() }) {
+  async function build({ project, quotes = [], report, generatedAt = new Date(), logo = null }) {
     const wb = new ExcelJS.Workbook();
     wb.creator = 'QuoteLine';
     wb.created = generatedAt;
@@ -118,8 +127,9 @@
     const ranks = landed.map((v, i) => complete[i] ? 1 + landed.filter((w, j) => complete[j] && w < v).length : null);
     const reviewCount = rows.filter(r => rowStatus(r, quotes)[0] !== 'Matched').length;
 
-    const summary = wb.addWorksheet('Summary', { properties: { tabColor: { argb: 'FF' + RED } } });
-    const comparison = wb.addWorksheet('Comparison', { properties: { tabColor: { argb: 'FF' + RED } } });
+    const summary = wb.addWorksheet('Summary', { properties: { tabColor: { argb: 'FF' + BRAND_STRONG } } });
+    const comparison = wb.addWorksheet('Comparison', { properties: { tabColor: { argb: 'FF' + BRAND_STRONG } } });
+    const brandLogo = logo?.dataUrl ? { id: wb.addImage({ base64: logo.dataUrl, extension: 'png' }), width: logo.width, height: logo.height } : null;
 
     /* ---------- Comparison: one row per item, two columns per supplier ---------- */
     const hasBaseline = rows.some(r => num(r.baseline_price) != null);
@@ -127,9 +137,9 @@
     const firstSupplierCol = itemCols.length + 1;
     const supplierCol = qi => firstSupplierCol + qi * 2;
     const resultCol = firstSupplierCol + quotes.length * 2;
-    const lastCompCol = resultCol + 3;
+    const lastCompCol = resultCol + 2;
     banner(comparison, lastCompCol, `${projectName} · Price comparison`,
-      `Unit prices compared at the required quantity · Lowest price per line highlighted · Exported ${stamp}`);
+      `Unit prices compared at the required quantity · Lowest price per line highlighted · Exported ${stamp}`, brandLogo);
     comparison.mergeCells(4, 1, 5, itemCols.length);
     setCell(comparison, 'A4', 'ITEMS', { fill: LIGHT, font: { bold: true, color: GREY, size: 9 }, indent: 1 });
     quotes.forEach((q, qi) => {
@@ -143,7 +153,7 @@
     comparison.mergeCells(4, resultCol, 5, lastCompCol);
     setCell(comparison, comparison.getCell(4, resultCol).address, 'RESULT', { fill: LIGHT, font: { bold: true, color: GREY, size: 9 }, align: 'center' });
     const compHeader = 6;
-    headerRow(comparison, compHeader, [...itemCols, ...quotes.flatMap(() => ['Unit price', 'Total at req. qty']), 'Lowest unit', 'Lowest supplier', 'Spread', 'Status']);
+    headerRow(comparison, compHeader, [...itemCols, ...quotes.flatMap(() => ['Unit price', 'Total at req. qty']), 'Lowest unit', 'Lowest supplier', 'Status']);
     const firstItemRow = compHeader + 1;
     rows.forEach((row, ri) => {
       const r = firstItemRow + ri, qty = num(row.qty) ?? 1;
@@ -175,8 +185,7 @@
       });
       setCell(comparison, comparison.getCell(r, resultCol).address, row.best, { numFmt: MONEY, font: { bold: true } });
       setCell(comparison, comparison.getCell(r, resultCol + 1).address, (row.winners || []).join(', ') || '—', { wrap: true });
-      setCell(comparison, comparison.getCell(r, resultCol + 2).address, row.spread, { numFmt: MONEY, font: { color: GREY } });
-      badge(comparison.getCell(r, resultCol + 3), ...rowStatus(row, quotes));
+      badge(comparison.getCell(r, resultCol + 2), ...rowStatus(row, quotes));
       comparison.getRow(r).height = Math.max(20, Math.ceil(text(description).length / 45) * 14);
     });
     const lastItemRow = firstItemRow + rows.length - 1;
@@ -212,7 +221,7 @@
     comparison.getRow(totalsStart + 4).height = 22;
     [6, 40, 14, 9, 8, ...(hasBaseline ? [13, 14] : [])].forEach((w, i) => { comparison.getColumn(i + 1).width = w; });
     quotes.forEach((_, qi) => { comparison.getColumn(supplierCol(qi)).width = 13; comparison.getColumn(supplierCol(qi) + 1).width = 16; });
-    [12, 20, 12, 14].forEach((w, i) => { comparison.getColumn(resultCol + i).width = w; });
+    [12, 20, 14].forEach((w, i) => { comparison.getColumn(resultCol + i).width = w; });
     comparison.views = [{ state: 'frozen', xSplit: 2, ySplit: compHeader, showGridLines: false }];
     if (rows.length) comparison.autoFilter = { from: { row: compHeader, column: 1 }, to: { row: lastItemRow, column: lastCompCol } };
     pageSetup(comparison, true, `${compHeader - 2}:${compHeader}`);
@@ -220,9 +229,9 @@
     /* ---------- One sheet per supplier quote ---------- */
     quotes.forEach((q, qi) => {
       const name = quoteSheets[qi];
-      const ws = wb.addWorksheet(name, { properties: { tabColor: { argb: 'FF' + (qi === winner ? GOOD[1] : '8A8A8A') } } });
+      const ws = wb.addWorksheet(name, { properties: { tabColor: { argb: 'FF' + (qi === winner ? GOOD[1] : BRAND) } } });
       const cols = ['#', 'Code', 'Description', 'Qty', 'Unit', 'Unit price', 'Line total', 'Inc GST total', 'Source', 'Price check'];
-      banner(ws, cols.length, q.name, `Supplier quote ${qi + 1} of ${quotes.length} · ${q.source_file || 'Entered manually'}`);
+      banner(ws, cols.length, q.name, `Supplier quote ${qi + 1} of ${quotes.length} · ${q.source_file || 'Entered manually'}`, brandLogo);
       const [status, statusColours] = expiryStatus(q.expiry_date, today);
       const verified = q.items.filter(e => e.price_verified).length;
       const left = [
@@ -305,7 +314,7 @@
 
     /* ---------- Summary ---------- */
     const sumCols = ['Rank', 'Supplier', 'Quote no.', 'Quote date', 'Expiry', 'Status', 'Price basis', 'Lines covered', 'Product lines', 'Freight', 'Tax / GST', 'Discount', 'Total evaluated', 'Document total', 'Above lowest'];
-    banner(summary, sumCols.length, `${projectName} · Quote comparison summary`, `Exported ${stamp} from QuoteLine · ${quotes.length} quote${quotes.length === 1 ? '' : 's'} · ${rows.length} item${rows.length === 1 ? '' : 's'} compared`);
+    banner(summary, sumCols.length, `${projectName} · Quote comparison summary`, `Exported ${stamp} from QuoteLine · ${quotes.length} quote${quotes.length === 1 ? '' : 's'} · ${rows.length} item${rows.length === 1 ? '' : 's'} compared`, brandLogo);
     const tiles = [
       ['Quotes received', quotes.length, null],
       ['Items compared', rows.length, null],
@@ -332,7 +341,7 @@
       setCell(summary, `A${r}`, ranks[qi] ?? '—', { ...base, align: 'center', font: { bold: true, color: isWin ? GOOD[1] : INK } });
       const nameCell = setCell(summary, `B${r}`, q.name, { ...base, font: { bold: true, color: isWin ? GOOD[1] : INK } });
       nameCell.value = { text: q.name, hyperlink: `#${ref(quoteSheets[qi], 'A1')}`, tooltip: `Open the ${q.name} quote tab` };
-      nameCell.font = font({ bold: true, underline: true, color: isWin ? GOOD[1] : RED });
+      nameCell.font = font({ bold: true, underline: true, color: isWin ? GOOD[1] : BRAND_STRONG });
       setCell(summary, `C${r}`, q.quote_number || '—', base);
       setCell(summary, `D${r}`, parseDate(q.quote_date) || q.quote_date || '—', { ...base, numFmt: DATE, align: 'center' });
       setCell(summary, `E${r}`, parseDate(q.expiry_date) || q.expiry_date || '—', { ...base, numFmt: DATE, align: 'center' });

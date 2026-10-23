@@ -12,7 +12,16 @@ After editing the web UI or standalone parser, rebuild both files with `.venv/bi
 
 ## Netlify
 
-`netlify.toml` publishes `QuoteLine.html` as the site's home page (and the offline file at `/QuoteLine-Standalone.html`). Netlify serves static files only, so the hosted site is the browser version; `app.py` is for running locally. Netlify deploys the production branch, so changes appear on the live site once they are merged into `main`.
+The hosted site requires a Microsoft sign-in with an Axis Services Group account. On each deploy, `scripts/build_site.py` builds the `site/` folder from `QuoteLine.html` and the files in `web/`:
+
+- `login.html` is the sign-in page.
+- `auth-guard.js` sends visitors to `login.html` unless they are signed in.
+- `app-config.js` holds the app name and the Microsoft Entra app registration.
+- `msal-browser.min.js` is Microsoft's sign-in library, `@azure/msal-browser` 2.38.3.
+
+The site's address must be added as a **Single-page application** redirect URI on the Entra app registration, or sign-in will fail. The check runs in the browser: it controls who can use the app, but the page files themselves are still public. That is acceptable here because the app holds no data and processes quote files in the browser.
+
+Netlify serves static files only, so `app.py` is for running locally. Netlify deploys the production branch, so changes go live once they are merged into `main`.
 
 ## Run
 

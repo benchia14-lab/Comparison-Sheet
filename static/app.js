@@ -74,7 +74,11 @@ function render() {
   $('coverageNotice').hidden = !incomplete.length;
   $('coverageNotice').textContent = incomplete.length ? `Incomplete coverage: ${incomplete.join('; ')}. The totals shown exclude missing items, so compare complete quotes before choosing a supplier.` : '';
   const minComplete = winner >= 0 ? report.landed[winner] : null;
-  $('financialTable').querySelector('tbody').innerHTML = state.quotes.length ? state.quotes.map((q,i) => `<tr><td><strong>${esc(q.name)}</strong><small>${esc(q.price_basis || 'basis unspecified')}</small></td><td><span class="flag ${report.complete[i] ? 'ok' : 'review'}">${report.covered[i]}/${report.row_count} ${report.complete[i] ? 'complete' : 'incomplete'}</span></td><td>${cash(report.totals[i])}</td>${['freight','tax','discount'].map(field => `<td><span>$</span><input type="number" step="0.01" min="0" value="${q[field] ?? 0}" aria-label="${esc(q.name)} ${field}" data-qi="${i}" data-cost="${field}"></td>`).join('')}<td class="total-evaluated">${cash(report.landed[i])}</td><td>${cash(q.quoted_total)}${q.quoted_total != null ? `<small class="${Math.abs(report.landed[i]-q.quoted_total) <= .02 ? '' : 'incomplete'}">${Math.abs(report.landed[i]-q.quoted_total) <= .02 ? 'Matches quote' : 'Check variance'}</small>` : ''}</td><td class="${report.complete[i] ? '' : 'incomplete'}">${report.complete[i] && minComplete !== null ? cash(report.landed[i] - minComplete) : 'Incomplete'}</td></tr>`).join('') : '<tr><td colspan="9" class="table-empty">Add quotes to see the financial summary.</td></tr>';
+  // Highlight the cheapest complete quotes in green; an incomplete quote can look cheap only because lines are missing.
+  const completeCount = complete.length;
+  const lowestLines = completeCount > 1 ? Math.min(...complete.map(i => report.totals[i])) : null;
+  const cheapestTotal = i => completeCount > 1 && report.complete[i] && report.landed[i] === minComplete;
+  $('financialTable').querySelector('tbody').innerHTML = state.quotes.length ? state.quotes.map((q,i) => `<tr class="${cheapestTotal(i) ? 'fin-best' : ''}"><td><strong>${esc(q.name)}</strong>${cheapestTotal(i) ? '<span class="cheapest-tag">✓ Cheapest</span>' : ''}<small>${esc(q.price_basis || 'basis unspecified')}</small></td><td><span class="flag ${report.complete[i] ? 'ok' : 'review'}">${report.covered[i]}/${report.row_count} ${report.complete[i] ? 'complete' : 'incomplete'}</span></td><td class="${report.complete[i] && report.totals[i] === lowestLines ? 'cheapest-value' : ''}">${cash(report.totals[i])}</td>${['freight','tax','discount'].map(field => `<td><span>$</span><input type="number" step="0.01" min="0" value="${q[field] ?? 0}" aria-label="${esc(q.name)} ${field}" data-qi="${i}" data-cost="${field}"></td>`).join('')}<td class="total-evaluated ${cheapestTotal(i) ? 'cheapest-value' : ''}">${cash(report.landed[i])}</td><td>${cash(q.quoted_total)}${q.quoted_total != null ? `<small class="${Math.abs(report.landed[i]-q.quoted_total) <= .02 ? '' : 'incomplete'}">${Math.abs(report.landed[i]-q.quoted_total) <= .02 ? 'Matches quote' : 'Check variance'}</small>` : ''}</td><td class="${report.complete[i] ? (cheapestTotal(i) ? 'cheapest-note' : '') : 'incomplete'}">${cheapestTotal(i) ? 'Lowest' : report.complete[i] && minComplete !== null ? cash(report.landed[i] - minComplete) : 'Incomplete'}</td></tr>`).join('') : '<tr><td colspan="9" class="table-empty">Add quotes to see the financial summary.</td></tr>';
   const table = $('comparisonTable');
   table.querySelector('thead').innerHTML = `<tr><th class="item-head">ITEM / MATCH GROUP</th><th>REQUIRED QTY</th><th>BASELINE UNIT</th>${state.quotes.map(q=>`<th class="supplier-head"><strong>${esc(q.name)}</strong><small>${esc(q.price_basis || 'basis unspecified')}</small>${previewUrls.has(q.id) ? `<button class="preview-mini" type="button" data-preview="${esc(q.id)}">View original PDF ↗</button>` : ''}</th>`).join('')}<th>LOWEST UNIT</th><th>REVIEW</th></tr>`;
   const tbody = table.querySelector('tbody');
@@ -86,11 +90,13 @@ function render() {
     const priceWarning = row.prices.some((p,i) => p != null && row.matches?.[i]?.price_warning);
     const flag = missing ? '<span class="flag missing">Missing quote</span>' : mismatch ? '<span class="flag review">Qty differs</span>' : unitMismatch ? '<span class="flag review">Unit differs</span>' : priceWarning ? '<span class="flag review">Total differs</span>' : row.confidence === 'review' ? '<span class="flag review">Check match</span>' : '<span class="flag ok">Matched</span>';
     const prices = state.quotes.map((q,qi) => {
-      const entry=row.matches?.[qi],best=entry&&row.prices[qi]===row.best;
-      return `<td class="supplier-cell ${best?'supplier-best':''}">${entry ? `<div class="matched-line"><strong>${esc(entry.full_description || entry.description)}</strong><small>${esc(entry.code || 'No code')} · ${esc(entry.qty)} ${esc(entry.unit)} quoted</small><small>${esc(entry.source)}</small>${verifyButton(q.id,entry)}</div>` : '<div class="unmatched-line">No matching line in this quote</div>'}<div class="supplier-pricing"><label>Unit <span>$</span><input aria-label="${esc(q.name)} unit price for ${esc(row.description)}" type="number" min="0" step="0.01" value="${row.prices[qi] ?? ''}" placeholder="missing" data-gi="${gi}" data-qi="${qi}" data-field="price"></label><div>At required qty <strong>${cash(row.values[qi])}</strong></div></div></td>`;
+      // Mark the cheapest price only when there is something to compare it with.
+      const best=row.prices[qi]!=null&&row.prices[qi]===row.best&&row.prices.filter(p=>p!=null).length>1;
+      const entry=row.matches?.[qi];
+      return `<td class="supplier-cell ${best?'supplier-best':''}">${best?'<span class="cheapest-tag">✓ Cheapest</span>':''}${entry ? `<div class="matched-line"><strong>${esc(entry.full_description || entry.description)}</strong></div>` : '<div class="unmatched-line">No matching line in this quote</div>'}<div class="supplier-pricing"><label>Unit <span>$</span><input aria-label="${esc(q.name)} unit price for ${esc(row.description)}" type="number" min="0" step="0.01" value="${row.prices[qi] ?? ''}" placeholder="missing" data-gi="${gi}" data-qi="${qi}" data-field="price"></label><strong title="Total at the required quantity">${cash(row.values[qi])}</strong></div></td>`;
     }).join('');
     const actions = row.confidence === 'unmatched' || row.confidence === 'new' ? `<button class="subtle-btn match-btn" data-merge="${gi}" title="Match this line to another item">Match item</button>` : '';
-    return `<tr><td class="item-cell"><input class="desc-input" aria-label="Description" value="${esc(row.description)}" data-gi="${gi}" data-field="description"><small>${esc(row.code || row.unit || '')} ${actions}</small></td><td><input class="qty-input" aria-label="Required quantity" type="number" min="0.01" step="any" value="${row.qty}" data-gi="${gi}" data-field="qty"></td><td><span>$</span><input class="baseline-input" aria-label="Baseline unit price" type="number" min="0" step="0.01" value="${row.baseline_price ?? ''}" data-gi="${gi}" data-field="baseline"></td>${prices}<td class="best-cell">${cash(row.best)}<small>${esc(row.winners.join(', '))}</small>${row.spread ? `<small>${cash(row.spread)} spread</small>` : ''}</td><td>${flag}</td></tr>`;
+    return `<tr><td class="item-cell"><input class="desc-input" aria-label="Description" value="${esc(row.description)}" data-gi="${gi}" data-field="description"><small>${esc(row.code || row.unit || '')} ${actions}</small></td><td><input class="qty-input" aria-label="Required quantity" type="number" min="0.01" step="any" value="${row.qty}" data-gi="${gi}" data-field="qty"></td><td><span>$</span><input class="baseline-input" aria-label="Baseline unit price" type="number" min="0" step="0.01" value="${row.baseline_price ?? ''}" data-gi="${gi}" data-field="baseline"></td>${prices}<td class="best-cell">${cash(row.best)}<small>${esc(row.winners.join(', '))}</small></td><td>${flag}</td></tr>`;
   }).join('');
 }
 
@@ -393,13 +399,23 @@ $('addQuoteBtn').addEventListener('click',async()=>{
   const name=prompt('Supplier or subcontractor name');if(!name?.trim())return;
   state.quotes.push({id:newId(),name:name.trim(),items:[]});await refresh();
 });
+// The sidebar's Axis logo as a PNG for the workbook banners; the export still works without it.
+function brandLogo(){
+  const img=document.querySelector('.brand-logo');
+  if(!img?.complete||!img.naturalWidth)return null;
+  try{
+    const canvas=document.createElement('canvas');canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+    canvas.getContext('2d').drawImage(img,0,0);
+    return {dataUrl:canvas.toDataURL('image/png'),width:img.naturalWidth,height:img.naturalHeight};
+  }catch{return null}
+}
 $('exportBtn').addEventListener('click',async()=>{
   const button=$('exportBtn');button.disabled=true;button.textContent='Preparing spreadsheet…';
   try{
     if(!window.QuoteLineWorkbook)throw new Error('The spreadsheet library did not load. Check your internet connection and reload the page.');
     await refresh();
     const quotes=state.quotes.map(q=>({...q,source_file:state.imported.find(f=>f.id===q.id)?.name||''}));
-    const buffer=await QuoteLineWorkbook.build({project:$('project').value,quotes,report});
+    const buffer=await QuoteLineWorkbook.build({project:$('project').value,quotes,report,logo:brandLogo()});
     const file=($('project').value.trim()||'quote-comparison').replace(/[^\w .-]+/g,'').trim().replace(/\s+/g,'-')||'quote-comparison';
     const url=URL.createObjectURL(new Blob([buffer],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));const a=document.createElement('a');a.href=url;a.download=`${file}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }catch(err){alert(err.message)}finally{button.disabled=false;button.textContent='↧   Export comparison'}
